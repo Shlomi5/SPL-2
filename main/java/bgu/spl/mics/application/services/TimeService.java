@@ -32,8 +32,13 @@ public class TimeService extends MicroService {
     protected void initialize() {
         int counter = 0;
         while (counter < duration) {
+            try {
+                Thread.sleep(tickTime);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             sendBroadcast(new TickBroadcast(counter));
-            counter = counter + tickTime;
+            counter = counter + 1;
 
         }
         terminate();
