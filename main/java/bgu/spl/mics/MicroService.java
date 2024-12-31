@@ -24,8 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public abstract class MicroService implements Runnable {
 
 
-    private ConcurrentHashMap<Class<? extends Event>, Callback> eventCallbackMap = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<Class<? extends Broadcast>, Callback> broadcastCallbackMap = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<Class<? extends Message>, Callback> messageCallbackMap = new ConcurrentHashMap<>();
     private final MessageBusImpl messageBus = MessageBusImpl.getInstance();
     private boolean terminated = false;
     private final String name;
@@ -61,7 +60,7 @@ public abstract class MicroService implements Runnable {
      */
     protected final <T, E extends Event<T>> void subscribeEvent(Class<E> type, Callback<E> callback) {
         messageBus.subscribeEvent(type, this);
-        eventCallbackMap.put(type, callback);
+        messageCallbackMap.put(type, callback);
 
     }
 
@@ -87,7 +86,7 @@ public abstract class MicroService implements Runnable {
      */
     protected final <B extends Broadcast> void subscribeBroadcast(Class<B> type, Callback<B> callback) {
         messageBus.subscribeBroadcast(type, this);
-        broadcastCallbackMap.put(type, callback);
+        messageCallbackMap.put(type, callback);
     }
 
     /**
@@ -163,11 +162,8 @@ public abstract class MicroService implements Runnable {
             try {
                 Message message = messageBus.awaitMessage(this);
                 if (message != null) {
-                    if (message instanceof Event) {
-                        Callback callback = eventCallbackMap.get(message.getClass());
-                        callback.call(message);
-                    } else if (message instanceof Broadcast) {
-                        Callback callback = broadcastCallbackMap.get(message.getClass());
+                    Callback callback = messageCallbackMap.get(message.getClass());
+                    if (callback != null) {
                         callback.call(message);
                     }
                 }
