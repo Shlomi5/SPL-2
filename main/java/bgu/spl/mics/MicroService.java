@@ -14,7 +14,7 @@ package bgu.spl.mics;
  * message-queue (see {@link MessageBus#register(bgu.spl.mics.MicroService)}
  * method). The abstract MicroService stores this callback together with the
  * type of the message is related to.
- * 
+ * <p>
  * Only private fields and methods may be added to this class.
  * <p>
  */

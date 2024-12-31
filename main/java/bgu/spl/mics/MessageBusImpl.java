@@ -1,5 +1,11 @@
 package bgu.spl.mics;
 
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * The {@link MessageBusImpl class is the implementation of the MessageBus interface.
  * Write your implementation here!
@@ -7,55 +13,122 @@ package bgu.spl.mics;
  * All other methods and members you add the class must be private.
  */
 public class MessageBusImpl implements MessageBus {
-	
+	ConcurrentHashMap<MicroService, ConcurrentLinkedQueue<Message>> microServiceQueueHashMap;
+	ConcurrentHashMap<Class<? extends Event<?>>, CopyOnWriteArrayList<MicroService>> eventMicroServicesHashMap;
+	ConcurrentHashMap<Class<? extends Broadcast>, CopyOnWriteArrayList<MicroService>> broadcastMicroServicesHashMap;
+	ConcurrentHashMap<Event<?>, Future<?>> eventFutures;
+	ConcurrentHashMap<Class<? extends Event<?>>, AtomicInteger> roundRobinIndices;
+
+	private static class SingletonHolder {
+		private static final MessageBusImpl instance = new MessageBusImpl();
+	}
+	public static MessageBusImpl getInstance() {
+		return SingletonHolder.instance;
+	}
+
+	private MessageBusImpl() {
+		microServiceQueueHashMap = new ConcurrentHashMap<>();
+		eventMicroServicesHashMap = new ConcurrentHashMap<>();
+		broadcastMicroServicesHashMap = new ConcurrentHashMap<>();
+		eventFutures = new ConcurrentHashMap<>();
+		roundRobinIndices = new ConcurrentHashMap<>();
+
+	}
+
+
+
 	@Override
 	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
-		// TODO Auto-generated method stub
-
+		CopyOnWriteArrayList<MicroService> microServices = eventMicroServicesHashMap.get(type);
+		Future<T> future = new Future<>();
+		if (microServices == null) {
+			microServices = new CopyOnWriteArrayList<>();
+			eventMicroServicesHashMap.put(type, microServices);
+			roundRobinIndices.put(type, new AtomicInteger(0));
+		}
+		microServices.add(m);
 	}
 
 	@Override
 	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
-		// TODO Auto-generated method stub
-
+		CopyOnWriteArrayList<MicroService> microServices = broadcastMicroServicesHashMap.get(type);
+		if (microServices == null) {
+			microServices = new CopyOnWriteArrayList<>();
+			broadcastMicroServicesHashMap.put(type, microServices);
+		}
+		microServices.add(m);
 	}
 
 	@Override
 	public <T> void complete(Event<T> e, T result) {
-		// TODO Auto-generated method stub
-
+		Future<T> future = (Future<T>) eventFutures.remove(e);
+		if (future != null) {
+			future.resolve(result);
+		}
 	}
 
 	@Override
 	public void sendBroadcast(Broadcast b) {
-		// TODO Auto-generated method stub
+		CopyOnWriteArrayList<MicroService> microServices = broadcastMicroServicesHashMap.get(b.getClass());
+		if (microServices != null) {
+			for (MicroService microService : microServices) {
+				Queue<Message> messageQueue = microServiceQueueHashMap.get(microService);
+				if (messageQueue != null) {
+					messageQueue.add(b);
+				}
+			}
+		}
 
 	}
 
-	
-	@Override
 	public <T> Future<T> sendEvent(Event<T> e) {
-		// TODO Auto-generated method stub
-		return null;
+		CopyOnWriteArrayList<MicroService> subscribers = eventMicroServicesHashMap.get(e.getClass());
+		if (subscribers == null || subscribers.isEmpty()) {
+			return null;
+		}
+
+		Future<T> future = new Future<>();
+		eventFutures.put(e, future);
+
+		synchronized (roundRobinIndices.get(e.getClass())) {
+			AtomicInteger index = roundRobinIndices.get(e.getClass());
+			int nextIndex = index.getAndUpdate(i -> (i + 1) % subscribers.size());
+
+			MicroService assignedMicroService = subscribers.get(nextIndex);
+			ConcurrentLinkedQueue<Message> queue = microServiceQueueHashMap.get(assignedMicroService);
+			if (queue != null) {
+                queue.offer(e);
+            }
+		}
+		return future;
 	}
 
 	@Override
 	public void register(MicroService m) {
-		// TODO Auto-generated method stub
-
+		ConcurrentLinkedQueue<Message> messageQueue = microServiceQueueHashMap.get(m);
+		if (messageQueue == null) {
+			messageQueue = new ConcurrentLinkedQueue<>();
+			microServiceQueueHashMap.put(m, messageQueue);
+		}
 	}
 
 	@Override
 	public void unregister(MicroService m) {
-		// TODO Auto-generated method stub
+		microServiceQueueHashMap.remove(m);
+		eventMicroServicesHashMap.forEach((event, microServices) -> microServices.remove(m));
+		broadcastMicroServicesHashMap.forEach((broadcast, microServices) -> microServices.remove(m));
 
 	}
 
 	@Override
 	public Message awaitMessage(MicroService m) throws InterruptedException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+
+		ConcurrentLinkedQueue<Message> messageQueue = microServiceQueueHashMap.get(m);
+		if (messageQueue == null) {
+			throw new IllegalStateException("MicroService was never registered");
+		}
+		return messageQueue.poll();
+		}
 
 	
 
