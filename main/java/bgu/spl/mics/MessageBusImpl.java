@@ -14,8 +14,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class MessageBusImpl implements MessageBus {
 	ConcurrentHashMap<MicroService, ConcurrentLinkedQueue<Message>> microServiceQueueHashMap;
-	ConcurrentHashMap<Class<? extends Event<?>>, CopyOnWriteArrayList<MicroService>> eventMicroServicesHashMap;
-	ConcurrentHashMap<Class<? extends Broadcast>, CopyOnWriteArrayList<MicroService>> broadcastMicroServicesHashMap;
+	final ConcurrentHashMap<Class<? extends Event<?>>, CopyOnWriteArrayList<MicroService>> eventMicroServicesHashMap;
+	final ConcurrentHashMap<Class<? extends Broadcast>, CopyOnWriteArrayList<MicroService>> broadcastMicroServicesHashMap;
 	ConcurrentHashMap<Event<?>, Future<?>> eventFutures;
 	ConcurrentHashMap<Class<? extends Event<?>>, AtomicInteger> roundRobinIndices;
 
@@ -108,20 +108,27 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public void unregister(MicroService m) {
 		microServiceQueueHashMap.remove(m);
-		eventMicroServicesHashMap.forEach((event, microServices) -> microServices.remove(m));
-		broadcastMicroServicesHashMap.forEach((broadcast, microServices) -> microServices.remove(m));
+		synchronized (eventMicroServicesHashMap) {
+			eventMicroServicesHashMap.forEach((event, microServices) -> microServices.remove(m));
+		}
+		synchronized (broadcastMicroServicesHashMap) {
+			broadcastMicroServicesHashMap.forEach((broadcast, microServices) -> microServices.remove(m));
+		}
 
 	}
 
 	@Override
-	public Message awaitMessage(MicroService m) throws InterruptedException {
-
+	public synchronized Message awaitMessage(MicroService m) throws InterruptedException {
 		ConcurrentLinkedQueue<Message> messageQueue = microServiceQueueHashMap.get(m);
 		if (messageQueue == null) {
 			throw new IllegalStateException("MicroService was never registered");
 		}
-		return messageQueue.poll();
+
+		while (messageQueue.isEmpty()) {
+			wait(); // Wait until a message is added
 		}
+		return messageQueue.poll();
+	}
 
 	
 

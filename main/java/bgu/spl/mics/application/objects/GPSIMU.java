@@ -5,5 +5,5 @@ package bgu.spl.mics.application.objects;
  * Provides information about the robot's position and movement.
  */
 public class GPSIMU {
-    // TODO: Define fields and methods.
+
 }
