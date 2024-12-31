@@ -51,12 +51,8 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
-		CopyOnWriteArrayList<MicroService> microServices = broadcastMicroServicesHashMap.get(type);
-		if (microServices == null) {
-			microServices = new CopyOnWriteArrayList<>();
-			broadcastMicroServicesHashMap.put(type, microServices);
-		}
-		microServices.add(m);
+        CopyOnWriteArrayList<MicroService> microServices = broadcastMicroServicesHashMap.computeIfAbsent(type, k -> new CopyOnWriteArrayList<>());
+        microServices.add(m);
 	}
 
 	@Override
@@ -105,12 +101,9 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void register(MicroService m) {
-		ConcurrentLinkedQueue<Message> messageQueue = microServiceQueueHashMap.get(m);
-		if (messageQueue == null) {
-			messageQueue = new ConcurrentLinkedQueue<>();
-			microServiceQueueHashMap.put(m, messageQueue);
-		}
-	}
+        ConcurrentLinkedQueue<Message> messageQueue =
+				microServiceQueueHashMap.computeIfAbsent(m, k -> new ConcurrentLinkedQueue<>());
+    }
 
 	@Override
 	public void unregister(MicroService m) {
