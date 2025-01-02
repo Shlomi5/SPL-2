@@ -124,7 +124,7 @@ public class MessageBusImpl implements MessageBus {
 		}
 
 		long startTime = System.currentTimeMillis();
-		long timeout = 5000; // 5 seconds timeout, you can adjust as needed
+		long timeout = 500; // 5 seconds timeout, you can adjust as needed
 		while (messageQueue.isEmpty()) {
 			long elapsedTime = System.currentTimeMillis() - startTime;
 			long remainingTime = timeout - elapsedTime;

@@ -4,8 +4,8 @@ import java.util.concurrent.TimeUnit;
 
 import main.java.bgu.spl.mics.Future;
 import main.java.bgu.spl.mics.MicroService;
-import bgu.spl.mics.example.messages.ExampleBroadcast;
-import bgu.spl.mics.example.messages.ExampleEvent;
+import main.java.bgu.spl.mics.example.messages.ExampleBroadcast;
+import main.java.bgu.spl.mics.example.messages.ExampleEvent;
 
 public class ExampleMessageSenderService extends MicroService {
 

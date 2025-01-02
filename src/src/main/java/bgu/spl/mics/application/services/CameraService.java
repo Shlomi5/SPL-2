@@ -1,9 +1,12 @@
 package main.java.bgu.spl.mics.application.services;
 
 import main.java.bgu.spl.mics.MicroService;
-import bgu.spl.mics.application.messages.broadcasts.TerminatedBroadcast;
-import bgu.spl.mics.application.messages.broadcasts.TickBroadcast;
-import bgu.spl.mics.application.objects.Camera;
+import main.java.bgu.spl.mics.application.messages.broadcasts.TerminatedBroadcast;
+import main.java.bgu.spl.mics.application.messages.broadcasts.TickBroadcast;
+import main.java.bgu.spl.mics.application.messages.events.DetectedObjectsEvent;
+import main.java.bgu.spl.mics.application.objects.Camera;
+import main.java.bgu.spl.mics.application.objects.DetectedObject;
+import main.java.bgu.spl.mics.application.objects.StampedDetectedObjects;
 
 /**
  * CameraService is responsible for processing data from the camera and
@@ -13,36 +16,37 @@ import bgu.spl.mics.application.objects.Camera;
  * the system's StatisticalFolder upon sending its observations.
  */
 public class CameraService extends MicroService {
-
     private Camera camera;
 
-    /**
-     * Constructor for CameraService.
-     *
-     * @param camera The Camera object that this service will use to detect objects.
-     */
     public CameraService(Camera camera) {
         super("CameraService");
         this.camera = camera;
     }
 
-    /**
-     * Initializes the CameraService.
-     * Registers the service to handle TickBroadcasts and sets up callbacks for sending
-     * DetectObjectsEvents.
-     */
-    @Override
     protected void initialize() {
+        System.out.println("Got BroadcastTick");
+        this.subscribeBroadcast(TickBroadcast.class, (tick) -> {
+            if (tick.getTime() % this.camera.getFrequency() == 0) {
+                StampedDetectedObjects detectedObjects = this.camera.checkAndDetectObjects(tick.getTime());
+                if (!detectedObjects.getObjects().isEmpty()) {
+                    new DetectedObjectsEvent();
+                    this.printMe(detectedObjects);
+                }
+            }
 
-
-
-        subscribeBroadcast(TickBroadcast.class, (TickBroadcast tick) -> {
-            camera.checkAndDetectObjects(tick.getTime());
         });
-        subscribeBroadcast(TerminatedBroadcast.class,(TerminatedBroadcast broacast) -> {
-            // terminate(); ??? maybe 
-
-        } );
-
+        this.subscribeBroadcast(TerminatedBroadcast.class, (broacast) -> {
+        });
     }
+
+    private void printMe(StampedDetectedObjects detectedObjects) {
+        System.out.println("Time: " + detectedObjects.getTimestamp());
+        System.out.println("Detected Objects:");
+
+        for (DetectedObject obj : detectedObjects.getObjects()) {
+            System.out.println("  - " + obj);
+        }
+    }
+
 }
+

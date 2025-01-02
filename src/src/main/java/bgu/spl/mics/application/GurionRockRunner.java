@@ -1,5 +1,12 @@
 package main.java.bgu.spl.mics.application;
 
+import main.java.bgu.spl.mics.application.objects.Camera;
+import main.java.bgu.spl.mics.application.services.CameraService;
+import main.java.bgu.spl.mics.application.services.TimeService;
+
+import java.io.FileNotFoundException;
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * The main entry point for the GurionRock Pro Max Ultra Over 9000 simulation.
  * <p>
@@ -16,8 +23,17 @@ public class GurionRockRunner {
      *
      * @param args Command-line arguments. The first argument is expected to be the path to the configuration file.
      */
-    public static void main(String[] args) {
-        System.out.println("Hello World!");
+    public static void main(String[] args) throws FileNotFoundException {
+        Camera camera = new Camera(new AtomicInteger(1), new AtomicInteger(3));
+        camera.loadCameraData("example input/camera_data.json", 1);
+        CameraService cameraService = new CameraService(camera);
+        TimeService timeService = new TimeService(1000, 100);
+
+        Thread cameraThread = new Thread(cameraService);
+        Thread timeThread = new Thread(timeService);
+
+        timeThread.start();
+        cameraThread.start();
 
         // TODO: Parse configuration file.
         // TODO: Initialize system components and services.

@@ -37,6 +37,7 @@ public class TimeService extends MicroService {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            System.out.println("TimeService: " + counter);
             sendBroadcast(new TickBroadcast(counter));
             counter = counter + 1;
 
