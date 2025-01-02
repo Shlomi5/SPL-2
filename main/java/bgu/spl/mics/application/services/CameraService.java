@@ -15,6 +15,7 @@ import bgu.spl.mics.application.objects.Camera;
 public class CameraService extends MicroService {
 
     private Camera camera;
+
     /**
      * Constructor for CameraService.
      *
@@ -32,6 +33,9 @@ public class CameraService extends MicroService {
      */
     @Override
     protected void initialize() {
+
+
+
         subscribeBroadcast(TickBroadcast.class, (TickBroadcast tick) -> {
             camera.checkAndDetectObjects(tick.getTime());
         });
