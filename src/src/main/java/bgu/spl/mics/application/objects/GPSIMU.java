@@ -4,7 +4,6 @@ import com.google.gson.reflect.TypeToken;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -42,7 +41,7 @@ public class GPSIMU {
         if(poseTillNow.isEmpty()) {
             throw new Exception("pose array is empty");
         }
-        return poseTillNow.getLast();
+        return poseTillNow.get(poseTillNow.size()-1);
     }
 
     public void crash() {

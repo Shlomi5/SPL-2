@@ -28,8 +28,9 @@ public class CameraService extends MicroService {
         this.subscribeBroadcast(TickBroadcast.class, (tick) -> {
             if (tick.getTime() % this.camera.getFrequency() == 0) {
                 StampedDetectedObjects detectedObjects = this.camera.checkAndDetectObjects(tick.getTime());
-                if (!detectedObjects.getObjects().isEmpty()) {
-                    new DetectedObjectsEvent();
+                if (!detectedObjects.getDetectedObjects().isEmpty()) {
+                    DetectedObjectsEvent detectedObjectsEvent = new DetectedObjectsEvent(detectedObjects);
+                    sendEvent(detectedObjectsEvent);
                     this.printMe(detectedObjects);
                 }
             }
@@ -43,7 +44,7 @@ public class CameraService extends MicroService {
         System.out.println("Time: " + detectedObjects.getTimestamp());
         System.out.println("Detected Objects:");
 
-        for (DetectedObject obj : detectedObjects.getObjects()) {
+        for (DetectedObject obj : detectedObjects.getDetectedObjects()) {
             System.out.println("  - " + obj);
         }
     }

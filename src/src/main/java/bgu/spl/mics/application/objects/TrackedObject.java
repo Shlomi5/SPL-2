@@ -19,4 +19,17 @@ public class TrackedObject {
         this.description = description;
         this.cloudPoints = cloudPoints;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("TrackedObject{id='").append(id).append('\'')
+                .append(", time=").append(time)
+                .append(", description='").append(description).append('\'')
+                .append(", cloudPoints=").append(cloudPoints)
+                .append('}');
+        return sb.toString();
+    }
+
+
 }

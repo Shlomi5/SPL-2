@@ -26,5 +26,14 @@ public class StampedCloudPoints {
             return id;
         }
 
-        // get cloud points seems shtupid, need to add a way to get the cloud points though
+    @Override
+    public String toString() {
+        return String.format("StampedCloudPoint{time=%d, id='%s', cloudPoints=%s}", timestamp, id, cloudPoints);
+    }
+
+    public List<CloudPoint> getCloudPoints() {
+        return cloudPoints;
+    }
+
+    // get cloud points seems shtupid, need to add a way to get the cloud points though
 }

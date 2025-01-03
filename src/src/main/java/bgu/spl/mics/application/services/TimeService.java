@@ -20,7 +20,7 @@ public class TimeService extends MicroService {
      */
     public TimeService(int TickTime, int Duration) {
         super("TimeService");
-        this.tickTime = TickTime;
+        this.tickTime = TickTime ;
         this.duration = Duration;
     }
 
@@ -30,10 +30,10 @@ public class TimeService extends MicroService {
      */
     @Override
     protected void initialize() {
-        int counter = 0;
+        int counter = 1;
         while (counter < duration) {
             try {
-                Thread.sleep(tickTime);
+                Thread.sleep(tickTime * 1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

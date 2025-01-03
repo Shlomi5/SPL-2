@@ -61,7 +61,7 @@ public class Camera {
             int time = timeFrameObject.get("time").getAsInt();
             List<DetectedObject> detectedObjects = gson.fromJson(timeFrameObject.get("detectedObjects"), detectedObjectListType);
 
-            cameraData.add(new StampedDetectedObjects(time, detectedObjects));
+            cameraData.add(new StampedDetectedObjects(new AtomicInteger(time), detectedObjects));
         }
 
     }
@@ -72,11 +72,11 @@ public class Camera {
         List<DetectedObject> newObjects = new CopyOnWriteArrayList<>();
         for (StampedDetectedObjects stampedObj : cameraData){
             if ((timeOfLastCapture <= stampedObj.getTimestamp()) && (stampedObj.getTimestamp() <= time)){
-                newObjects.addAll(stampedObj.getObjects());
+                newObjects.addAll(stampedObj.getDetectedObjects());
             }
         }
         if (newObjects!=null){
-            StampedDetectedObjects stampedDetectedObjects = new StampedDetectedObjects(time,newObjects);
+            StampedDetectedObjects stampedDetectedObjects = new StampedDetectedObjects(new AtomicInteger(time),newObjects);
             return stampedDetectedObjects;
         }
         else{

@@ -1,6 +1,7 @@
 package main.java.bgu.spl.mics.application.objects;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Represents objects detected by the camera at a specific timestamp.
@@ -8,19 +9,19 @@ import java.util.List;
  */
 public class StampedDetectedObjects {
 
-        private final long timestamp;
+        private final AtomicInteger timestamp;
         private final List<DetectedObject> objects;
 
-        public StampedDetectedObjects(long timestamp, List<DetectedObject> objects) {
+        public StampedDetectedObjects(AtomicInteger timestamp, List<DetectedObject> objects) {
             this.timestamp = timestamp;
             this.objects = objects;
         }
 
-        public long getTimestamp() {
-            return timestamp;
+        public int getTimestamp() {
+            return timestamp.get();
         }
 
-        public List<DetectedObject> getObjects() {
+        public List<DetectedObject> getDetectedObjects() {
             return objects;
         }
 }
