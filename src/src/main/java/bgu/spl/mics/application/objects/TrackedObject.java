@@ -19,4 +19,20 @@ public class TrackedObject {
         this.description = description;
         this.cloudPoints = cloudPoints;
     }
+
+    public String getId() {
+        return id;
+    }
+
+    public int getTime() {
+        return time;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public List<CloudPoint> getCloudPoints() {
+        return cloudPoints;
+    }
 }
