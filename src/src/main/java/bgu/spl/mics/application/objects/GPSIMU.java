@@ -14,15 +14,15 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class GPSIMU {
     private AtomicInteger currentTick;
-    private STATUS status;
-    private List<Pose> poseList;
-    private List<Pose> poseTillNow;
+    private final STATUS status;
+    private final List<Pose> poseList;
+    private final List<Pose> poseTillNow;
 
     public GPSIMU(String path) {
         PoseCreator poseCreator = new PoseCreator();
         this.poseTillNow = new CopyOnWriteArrayList<>();
         this.poseList = poseCreator.createPoseList(path);
-        this.currentTick.set(0);
+        this.currentTick = new AtomicInteger(0);
         this.status = STATUS.UP;
     }
 
@@ -34,7 +34,7 @@ public class GPSIMU {
         }
         Pose curr = poseList.get(currentTick.get());
         poseTillNow.add(curr);
-        currentTick.incrementAndGet();
+        this.currentTick = new AtomicInteger(currentTick.incrementAndGet());
     }
 
     public Pose getCurrentPose() throws Exception {
@@ -52,8 +52,11 @@ public class GPSIMU {
         //TODO
     }
 
-    public class PoseCreator {
+    public static class PoseCreator {
+
         private List<Pose> createPoseList(String path) {
+
+            CopyOnWriteArrayList<Pose> poseList = new CopyOnWriteArrayList<>();
             try (FileReader reader = new FileReader(path)) {
                 // Create a Gson instance
                 Gson gson = new Gson();
@@ -63,11 +66,11 @@ public class GPSIMU {
                 }.getType();
 
                 // Parse the JSON file into a list of intermediate objects
-                CopyOnWriteArrayList<Pose> poseList = gson.fromJson(reader, poseListType);
+                List<Pose> poseListTemp = gson.fromJson(reader, poseListType);
 
                 // Convert each JSON object to a Pose instance
-                for (Pose pose : poseList) {
-                    poseList.add(new Pose(pose.getX(), pose.getY(), pose.getYaw(), pose.getTime()));
+                for (Pose pose : poseListTemp) {
+                    poseList.add(new Pose(pose.getTime(), pose.getX(), pose.getY(), pose.getYaw()));
                 }
             } catch (IOException e) {
                 e.printStackTrace(); // Handle file read errors

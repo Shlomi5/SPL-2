@@ -32,6 +32,7 @@ public class PoseService extends MicroService {
     protected void initialize() {
         subscribeBroadcast(TickBroadcast.class, (TickBroadcast tick) -> {
             gpsimu.addCurrentPose(tick.getTime());
+            printMe();
         });
         subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast crash) -> {
             gpsimu.crash();
@@ -39,5 +40,14 @@ public class PoseService extends MicroService {
         subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast terminate) -> {
             gpsimu.terminate();
         });
+    }
+
+    private void printMe() {
+        try {
+            System.out.println("Time: " + gpsimu.getCurrentPose().getTime());
+            System.out.println("Position: " + gpsimu.getCurrentPose());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

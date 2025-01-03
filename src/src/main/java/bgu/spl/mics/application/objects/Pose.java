@@ -8,13 +8,13 @@ public class Pose {
     private final double x;
     private final double y;
     private final double yaw;
-    private final int Time;
+    private final int time;
 
-    public Pose(double x, double y, double yaw, int Time) {
+    public Pose(int time, double x, double y, double yaw) {
         this.x = x;
         this.y = y;
         this.yaw = yaw;
-        this.Time = Time;
+        this.time = time;
     }
 
     public double getX() {
@@ -30,7 +30,16 @@ public class Pose {
     }
 
     public int getTime() {
-        return Time;
+        return time;
     }
 
+    @Override
+    public String toString() {
+        return "Pose{" +
+                "x=" + x +
+                ", y=" + y +
+                ", yaw=" + yaw +
+                ", Time=" + time +
+                '}';
+    }
 }
