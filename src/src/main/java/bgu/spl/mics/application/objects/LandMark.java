@@ -31,10 +31,10 @@ public class LandMark {
 
     @Override
     public String toString() {
-        return "LandMark{" +
-                "id='" + id + '\'' +
-                ", description='" + description + '\'' +
-                ", coordinates=" + coordinates +
-                '}';
+        return "LandMark {\n" +
+                "\tid='" + id + "',\n" +
+                "\tdescription='" + description + "',\n" +
+                "\tcoordinates=" + coordinates + "\n" +
+                "}";
     }
 }
