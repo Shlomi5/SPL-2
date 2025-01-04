@@ -1,6 +1,7 @@
 package main.java.bgu.spl.mics.application.services;
 
 import main.java.bgu.spl.mics.MicroService;
+import main.java.bgu.spl.mics.application.messages.broadcasts.CrashedBroadcast;
 import main.java.bgu.spl.mics.application.messages.broadcasts.TerminatedBroadcast;
 import main.java.bgu.spl.mics.application.messages.broadcasts.TickBroadcast;
 import main.java.bgu.spl.mics.application.messages.events.DetectedObjectsEvent;
@@ -19,7 +20,7 @@ public class CameraService extends MicroService {
     private Camera camera;
 
     public CameraService(Camera camera) {
-        super("CameraService");
+        super("CameraService " + camera.getId());
         this.camera = camera;
     }
 
@@ -31,16 +32,29 @@ public class CameraService extends MicroService {
                 if (!detectedObjects.getDetectedObjects().isEmpty()) {
                     DetectedObjectsEvent detectedObjectsEvent = new DetectedObjectsEvent(detectedObjects);
                     sendEvent(detectedObjectsEvent);
-                    this.printMe(detectedObjects);
+                    this.printDetectedObjects(detectedObjects);
                 }
             }
 
         });
-        this.subscribeBroadcast(TerminatedBroadcast.class, (broacast) -> {
+        this.subscribeBroadcast(TerminatedBroadcast.class, (broadcast) -> {
+            System.out.println("CameraService " + camera.getId() + " terminated");
+            camera.terminate();
+            this.terminate();
         });
+
+        this.subscribeBroadcast(CrashedBroadcast.class, (broadcast) -> {
+            System.out.println("CameraService " + camera.getId() + " crashed");
+            camera.crash();
+            this.terminate();
+        });
+
+
+
+
     }
 
-    private void printMe(StampedDetectedObjects detectedObjects) {
+    private void printDetectedObjects(StampedDetectedObjects detectedObjects) {
         System.out.println("Time: " + detectedObjects.getTimestamp());
         System.out.println("Detected Objects:");
 

@@ -23,8 +23,4 @@ public class DetectedObjectsEvent implements Event<StampedDetectedObjects> {
     }
 
 
-    @Override
-    public void setFuture() {
-
-    }
 }

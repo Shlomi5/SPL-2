@@ -1,6 +1,9 @@
 package main.java.bgu.spl.mics.application;
 
-import main.java.bgu.spl.mics.application.objects.*;
+
+import main.java.bgu.spl.mics.application.objects.Camera;
+import main.java.bgu.spl.mics.application.objects.FusionSlam;
+import main.java.bgu.spl.mics.application.objects.LiDarWorkerTracker;
 import main.java.bgu.spl.mics.application.services.CameraService;
 import main.java.bgu.spl.mics.application.services.FusionSlamService;
 import main.java.bgu.spl.mics.application.services.LiDarService;

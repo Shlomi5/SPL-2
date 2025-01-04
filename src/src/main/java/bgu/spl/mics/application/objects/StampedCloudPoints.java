@@ -1,6 +1,7 @@
 package main.java.bgu.spl.mics.application.objects;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Represents a group of cloud points corresponding to a specific timestamp.
@@ -8,11 +9,13 @@ import java.util.List;
  */
 public class StampedCloudPoints {
 
+        private AtomicBoolean wasRead;
         private final long timestamp;
         private final String id;
         private final List<CloudPoint> cloudPoints;
 
         public StampedCloudPoints(long timestamp, String id, List<CloudPoint> cloudPoints) {
+            this.wasRead = new AtomicBoolean(false);
             this.timestamp = timestamp;
             this.id = id;
             this.cloudPoints = cloudPoints;
@@ -24,6 +27,13 @@ public class StampedCloudPoints {
 
         public String getId() {
             return id;
+        }
+
+        public void markRead() {
+            wasRead.set(true);
+        }
+        public boolean isRead() {
+            return wasRead.get();
         }
 
     @Override

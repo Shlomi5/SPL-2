@@ -39,6 +39,13 @@
             ]
         },
         {
+            "time": 11,
+            "detectedObjects": [
+                {"id": "Wall_1", "description": "Wall"}
+            ]
+        },
+
+        {
             "time": 12,
             "detectedObjects": [
                 {"id": "Wall_3", "description": "Wall"}

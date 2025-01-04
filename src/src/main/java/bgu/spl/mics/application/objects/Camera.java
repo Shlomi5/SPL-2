@@ -33,6 +33,17 @@ public class Camera {
     public int getFrequency() {
         return frequency.get();
     }
+    public int getId() {
+        return id.get();
+    }
+
+    public void crash() {
+        status = STATUS.ERROR;
+    }
+
+    public void terminate() {
+        status = STATUS.DOWN;
+    }
 
     public void loadCameraData(String path,int id) throws FileNotFoundException {
         // Initialize the Gson parser

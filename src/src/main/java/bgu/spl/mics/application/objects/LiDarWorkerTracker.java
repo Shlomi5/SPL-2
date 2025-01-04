@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class LiDarWorkerTracker {
     private final AtomicInteger id;
     private final AtomicInteger frequency;
-    private final STATUS status;
+    private STATUS status;
     private List<TrackedObject> lastTrackedObjects;
     private LiDarDataBase dataBase;
 
@@ -35,6 +35,14 @@ public class LiDarWorkerTracker {
 
     public int getFrequency() {
         return frequency.get();
+    }
+
+    public void crash() {
+        status = STATUS.ERROR;
+    }
+
+    public void terminate() {
+        status = STATUS.DOWN;
     }
 
     public STATUS getStatus() {

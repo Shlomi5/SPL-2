@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * LiDarDataBase is a singleton class responsible for managing LiDAR data.
@@ -21,10 +22,20 @@ public class LiDarDataBase {
 
     private List<StampedCloudPoints> cloudPoints;
 
+
+
+    /**
+     * Returns the cloud points for a specific detected object.
+     * @param detectedObject The detected object.
+     * @param timeStamp The time stamp of the detected object.
+     * @return The tracked object.
+     */
     public TrackedObject getTrackedObject(DetectedObject detectedObject, long timeStamp) {
+
         String detectedObjectId = detectedObject.getId();
         for (StampedCloudPoints stampedCloudPoints : cloudPoints) {
-            if (stampedCloudPoints.getId().equals(detectedObjectId)) {
+            if (stampedCloudPoints.getId().equals(detectedObjectId) && timeStamp >= stampedCloudPoints.getTimestamp() && !stampedCloudPoints.isRead()) {
+                stampedCloudPoints.markRead();
                 return new TrackedObject(detectedObjectId, timeStamp,detectedObject.getDescription(),stampedCloudPoints.getCloudPoints());
             }
         }
