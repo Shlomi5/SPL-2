@@ -44,12 +44,14 @@ public class LiDarService extends MicroService {
     @Override
     protected void initialize() {
         subscribeEvent(DetectedObjectsEvent.class, (event) -> {
+            System.out.println("Lidar " + LiDarWorkerTracker.getId() + " received detected objects");
             detectedObjectsEvents.add(event);
         });
 
         subscribeBroadcast(TickBroadcast.class, (tick) -> {
             if (tick.getTime() % LiDarWorkerTracker.getFrequency() == 0) {
                 while (!detectedObjectsEvents.isEmpty()) {
+                    System.out.println("Lidar " + LiDarWorkerTracker.getId() + " is processing detected objects");
                     DetectedObjectsEvent detectedObjectsEvent = detectedObjectsEvents.poll();
 
 

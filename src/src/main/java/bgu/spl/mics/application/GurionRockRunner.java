@@ -41,10 +41,15 @@ public class GurionRockRunner {
 
         LiDarWorkerTracker liDarWorkerTracker = new LiDarWorkerTracker(new AtomicInteger(1), new AtomicInteger(5));
         liDarWorkerTracker.LoadDataBase("example input/lidar_data.json");
+        LiDarWorkerTracker liDarWorkerTracker2 = new LiDarWorkerTracker(new AtomicInteger(2), new AtomicInteger(8));
+        liDarWorkerTracker2.LoadDataBase("example input/lidar_data.json");
 
         LiDarService liDarService = new LiDarService(liDarWorkerTracker);
+        LiDarService liDarService2 = new LiDarService(liDarWorkerTracker2);
+
 
         Thread liDarThread = new Thread(liDarService);
+        Thread liDarThread2 = new Thread(liDarService2);
         Thread cameraThread = new Thread(cameraService);
         Thread timeThread = new Thread(timeService);
         Thread fusionSlamThread = new Thread(fusionSlamService);
@@ -52,6 +57,7 @@ public class GurionRockRunner {
         timeThread.start();
         cameraThread.start();
         liDarThread.start();
+        liDarThread2.start();
         fusionSlamThread.start();
 
         // TODO: Parse configuration file.
