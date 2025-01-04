@@ -89,6 +89,7 @@ public class Camera {
         }
         if (detectedObjects!=null){
             StampedDetectedObjects stampedDetectedObjects = new StampedDetectedObjects(new AtomicInteger(time),detectedObjects);
+            StatisticalFolder.getInstance().incrementNumDetectedObjects(detectedObjects.size());
             return stampedDetectedObjects;
         }
         else{

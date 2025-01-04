@@ -34,7 +34,7 @@ public class GurionRockRunner {
         camera.loadCameraData("example input/camera_data.json", 1);
         CameraService cameraService = new CameraService(camera);
 
-        TimeService timeService = new TimeService(1, 50);
+        TimeService timeService = new TimeService(1, 30);
 
         FusionSlam fusionSlam = new FusionSlam();
         FusionSlamService fusionSlamService = new FusionSlamService(fusionSlam);
@@ -57,7 +57,7 @@ public class GurionRockRunner {
         cameraThread.start();
         liDarThread.start();
         liDarThread2.start();
-        //fusionSlamThread.start();
+        fusionSlamThread.start();
 
         // TODO: Parse configuration file.
         // TODO: Initialize system components and services.

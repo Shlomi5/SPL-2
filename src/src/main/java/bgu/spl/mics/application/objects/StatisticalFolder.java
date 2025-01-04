@@ -1,7 +1,11 @@
 package main.java.bgu.spl.mics.application.objects;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import main.java.bgu.spl.mics.MessageBusImpl;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -22,14 +26,14 @@ public class StatisticalFolder {
     private final AtomicInteger systemRuntime;      // Total runtime of the system in ticks
     private final AtomicInteger numDetectedObjects; // Cumulative count of detected objects
     private final AtomicInteger numTrackedObjects;  // Cumulative count of tracked objects
-    private final AtomicInteger numLandmarks;       // Total number of unique landmarks
+    private final List<LandMark> landmarks;        // List of landmarks identified in the environment
 
     // Constructor
     public StatisticalFolder() {
         this.systemRuntime = new AtomicInteger(0);
         this.numDetectedObjects = new AtomicInteger(0);
         this.numTrackedObjects = new AtomicInteger(0);
-        this.numLandmarks = new AtomicInteger(0);
+        this.landmarks = new CopyOnWriteArrayList<>();
     }
 
     // Getters
@@ -45,8 +49,8 @@ public class StatisticalFolder {
         return numTrackedObjects.get();
     }
 
-    public int getNumLandmarks() {
-        return numLandmarks.get();
+    public List<LandMark> getLandmarks() {
+        return landmarks;
     }
 
     // Update Methods
@@ -62,18 +66,38 @@ public class StatisticalFolder {
         numTrackedObjects.addAndGet(count);
     }
 
-    public void incrementNumLandmarks(int count) {
-        numLandmarks.addAndGet(count);
+    public void addLandmark(LandMark landmark) {
+        landmarks.add(landmark);
+        System.out.println("Landmark added: " + landmark);
     }
 
     @Override
     public String toString() {
         return "StatisticalFolder{" +
-                "systemRuntime=" + systemRuntime.get() +
-                ", numDetectedObjects=" + numDetectedObjects.get() +
-                ", numTrackedObjects=" + numTrackedObjects.get() +
-                ", numLandmarks=" + numLandmarks.get() +
+                "systemRuntime=" + systemRuntime +
+                ", numDetectedObjects=" + numDetectedObjects +
+                ", numTrackedObjects=" + numTrackedObjects +
+                ", landmarks=" + landmarks +
                 '}';
     }
+
+    public String createJson() {
+        HashMap<String, Object> jsonMap = new HashMap<>();
+        jsonMap.put("systemRuntime", systemRuntime.get());
+        jsonMap.put("numDetectedObjects", numDetectedObjects.get());
+        jsonMap.put("numTrackedObjects", numTrackedObjects.get());
+        jsonMap.put("numLandmarks", landmarks.size());
+
+        HashMap<String, LandMark> landmarkMap = new HashMap<>();
+        for (LandMark landmark : landmarks) {
+            landmarkMap.put(landmark.getId(), landmark);
+        }
+        jsonMap.put("landMarks", landmarkMap);
+
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        return gson.toJson(jsonMap);
+    }
+
+
 }
 

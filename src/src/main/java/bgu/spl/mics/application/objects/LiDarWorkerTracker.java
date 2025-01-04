@@ -58,6 +58,7 @@ public class LiDarWorkerTracker {
         for (DetectedObject detectedObject : detectedObjects) {
             TrackedObject trackedObject = dataBase.getTrackedObject(detectedObject, timeStamp);
             trackedObjects.add(trackedObject);
+            StatisticalFolder.getInstance().incrementNumTrackedObjects(1);
         }
 
         return trackedObjects;
