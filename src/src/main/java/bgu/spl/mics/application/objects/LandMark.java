@@ -28,4 +28,13 @@ public class LandMark {
     public List<CloudPoint> getCoordinates() {
         return coordinates;
     }
+
+    @Override
+    public String toString() {
+        return "LandMark{" +
+                "id='" + id + '\'' +
+                ", description='" + description + '\'' +
+                ", coordinates=" + coordinates +
+                '}';
+    }
 }

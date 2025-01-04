@@ -22,9 +22,4 @@ public class DetectedObjectsEvent implements Event<StampedDetectedObjects> {
         // TODO Auto-generated method stub
     }
 
-
-    @Override
-    public void setFuture() {
-
-    }
 }
