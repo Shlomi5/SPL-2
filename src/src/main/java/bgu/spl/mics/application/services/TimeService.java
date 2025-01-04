@@ -13,6 +13,7 @@ public class TimeService extends MicroService {
 
     int tickTime;
     int duration;
+    int counter = 1;
 
     /**
      * Constructor for TimeService.
@@ -38,22 +39,22 @@ public class TimeService extends MicroService {
             terminate();
         });
 
-        int counter = 1;
-        while (counter < duration) {
+        subscribeBroadcast(TickBroadcast.class, (TickBroadcast t) -> {
+            System.out.println("TimeService got TickBroadcast");
             try {
-                Thread.sleep(tickTime * 1000);
+                Thread.sleep(tickTime * 1000L);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             System.out.println("TimeService: " + counter);
             sendBroadcast(new TickBroadcast(counter));
             counter = counter + 1;
-
+        });
+        if (counter < duration) {
+            sendBroadcast(new TickBroadcast(counter));
         }
-        terminate();
-        sendBroadcast(new TerminatedBroadcast());
-
-
-
+        else {
+            terminate();
+        }
     }
 }

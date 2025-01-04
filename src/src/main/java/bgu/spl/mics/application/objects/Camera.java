@@ -18,8 +18,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Responsible for detecting objects in the environment.
  */
 public class Camera {
-    private AtomicInteger id;
-    private AtomicInteger frequency;
+    private final AtomicInteger id;
+    private final AtomicInteger frequency;
     private STATUS status;
     private List<StampedDetectedObjects> cameraData;
 

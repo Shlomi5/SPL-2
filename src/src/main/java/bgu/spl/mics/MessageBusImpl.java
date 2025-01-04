@@ -57,6 +57,8 @@ public class MessageBusImpl implements MessageBus {
 	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
         CopyOnWriteArrayList<MicroService> microServices = broadcastMicroServicesHashMap.computeIfAbsent(type, k -> new CopyOnWriteArrayList<>());
         microServices.add(m);
+
+		System.out.println(m.getName() + " Subscribed to broadcast " + type.getSimpleName());
 	}
 
 	@Override

@@ -1,4 +1,7 @@
 package main.java.bgu.spl.mics.application.objects;
+import main.java.bgu.spl.mics.MessageBusImpl;
+
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -7,6 +10,13 @@ import java.util.concurrent.atomic.AtomicInteger;
  * the number of objects detected and tracked, and the number of landmarks identified.
  */
 public class StatisticalFolder {
+
+    private static class SingletonHolder {
+        private static final StatisticalFolder instance = new StatisticalFolder();
+    }
+    public static StatisticalFolder getInstance() {
+        return SingletonHolder.instance;
+    }
 
     // Fields
     private final AtomicInteger systemRuntime;      // Total runtime of the system in ticks
