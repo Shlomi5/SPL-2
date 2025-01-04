@@ -20,6 +20,8 @@ public class FusionSlam {
     }
 
     public void addLandmarksFromTrackedObjects(List<TrackedObject> trackedObjects) {
+        System.out.println("Adding landmarks from tracked objects");
+        System.out.println(trackedObjects);
         for (TrackedObject trackedObject : trackedObjects) {
             String id = trackedObject.getId();
             boolean found = false;
@@ -48,7 +50,7 @@ public class FusionSlam {
     public void terminate() {
         // TODO Implement this
     }
-    
+
     private static class FusionSlamHolder {
         private static final FusionSlam instance = new FusionSlam();
     }

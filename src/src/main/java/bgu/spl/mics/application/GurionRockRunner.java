@@ -1,10 +1,8 @@
 package main.java.bgu.spl.mics.application;
 
-import main.java.bgu.spl.mics.application.objects.Camera;
-import main.java.bgu.spl.mics.application.objects.LiDarDataBase;
-import main.java.bgu.spl.mics.application.objects.LiDarWorkerTracker;
-import main.java.bgu.spl.mics.application.objects.StampedCloudPoints;
+import main.java.bgu.spl.mics.application.objects.*;
 import main.java.bgu.spl.mics.application.services.CameraService;
+import main.java.bgu.spl.mics.application.services.FusionSlamService;
 import main.java.bgu.spl.mics.application.services.LiDarService;
 import main.java.bgu.spl.mics.application.services.TimeService;
 
@@ -32,8 +30,11 @@ public class GurionRockRunner {
         Camera camera = new Camera(new AtomicInteger(1), new AtomicInteger(3));
         camera.loadCameraData("example input/camera_data.json", 1);
         CameraService cameraService = new CameraService(camera);
+
         TimeService timeService = new TimeService(1, 100);
 
+        FusionSlam fusionSlam = new FusionSlam();
+        FusionSlamService fusionSlamService = new FusionSlamService(fusionSlam);
 
         LiDarWorkerTracker liDarWorkerTracker = new LiDarWorkerTracker(new AtomicInteger(1), new AtomicInteger(3));
         liDarWorkerTracker.LoadDataBase("example input/lidar_data.json");
@@ -43,10 +44,12 @@ public class GurionRockRunner {
         Thread liDarThread = new Thread(liDarService);
         Thread cameraThread = new Thread(cameraService);
         Thread timeThread = new Thread(timeService);
+        Thread fusionSlamThread = new Thread(fusionSlamService);
 
         timeThread.start();
         cameraThread.start();
         liDarThread.start();
+        fusionSlamThread.start();
 
         // TODO: Parse configuration file.
         // TODO: Initialize system components and services.

@@ -4,7 +4,7 @@ import main.java.bgu.spl.mics.Event;
 
 public class ExampleEvent implements Event<String>{
 
-    private String senderName;
+    private final String senderName;
 
     public ExampleEvent(String senderName) {
         this.senderName = senderName;
@@ -12,5 +12,10 @@ public class ExampleEvent implements Event<String>{
 
     public String getSenderName() {
         return senderName;
+    }
+
+    @Override
+    public void setFuture() {
+
     }
 }
