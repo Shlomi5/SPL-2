@@ -9,16 +9,33 @@ import java.util.List;
  */
 public class TrackedObject {
     private final String id;
-    private final int time;
+    private final long time;
     private final String description;
     List<CloudPoint> cloudPoints;
 
-    public TrackedObject(String id, int time, String description, List<CloudPoint> cloudPoints) {
+    public TrackedObject(String id, long time, String description, List<CloudPoint> cloudPoints) {
         this.id = id;
         this.time = time;
         this.description = description;
         this.cloudPoints = cloudPoints;
     }
+
+    public String getId() {
+        return id;
+    }
+
+    public long getTime() {
+        return time;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public List<CloudPoint> getCloudPoints() {
+        return cloudPoints;
+    }
+
 
     @Override
     public String toString() {

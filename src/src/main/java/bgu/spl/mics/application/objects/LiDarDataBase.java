@@ -21,12 +21,10 @@ public class LiDarDataBase {
 
     private List<StampedCloudPoints> cloudPoints;
 
-    public TrackedObject getTrackedObject(DetectedObject detectedObject, int timeStamp) {
+    public TrackedObject getTrackedObject(DetectedObject detectedObject, long timeStamp) {
         String detectedObjectId = detectedObject.getId();
         for (StampedCloudPoints stampedCloudPoints : cloudPoints) {
-            System.out.println("LidarDataBase: ");
-            if (stampedCloudPoints.getId().equals(detectedObjectId) && stampedCloudPoints.getTimestamp() == timeStamp) {
-                System.out.println("FUCK YEAHhdshsadkajkadkdwadaawkdwadakw");
+            if (stampedCloudPoints.getId().equals(detectedObjectId)) {
                 return new TrackedObject(detectedObjectId, timeStamp,detectedObject.getDescription(),stampedCloudPoints.getCloudPoints());
             }
         }

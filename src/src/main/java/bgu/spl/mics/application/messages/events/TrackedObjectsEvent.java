@@ -15,4 +15,9 @@ public class TrackedObjectsEvent implements Event<TrackedObject> {
     public List<TrackedObject> getTrackedObjects() {
         return trackedObjects;
     }
+
+    @Override
+    public void setFuture() {
+        // TODO Auto-generated method stub
+    }
 }
