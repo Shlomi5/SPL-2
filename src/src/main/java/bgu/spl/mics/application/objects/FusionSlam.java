@@ -1,6 +1,7 @@
 package main.java.bgu.spl.mics.application.objects;
 
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Manages the fusion of sensor data for simultaneous localization and mapping (SLAM).
@@ -12,8 +13,8 @@ public class FusionSlam {
 
     //landmarks: Array/List of Landmark – Represents the map of the environment.
     //o Poses: List of type Pose – Represents previous Poses needed for calculations.
-    List<LandMark> landmarks;
-    List<Pose> poses;
+    List<LandMark> landmarks = new CopyOnWriteArrayList<>();
+    List<Pose> poses = new CopyOnWriteArrayList<>();
 
     public static FusionSlam getInstance() {
         return FusionSlamHolder.instance;
@@ -37,6 +38,7 @@ public class FusionSlam {
                 landmarks.add(newLandmark);
             }
         }
+        System.out.println("Landmarks Till Now: " + landmarks);
     }
 
     public void addPose(Pose newPose) {
