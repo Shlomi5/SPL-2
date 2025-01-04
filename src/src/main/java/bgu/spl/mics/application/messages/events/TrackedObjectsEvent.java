@@ -18,6 +18,6 @@ public class TrackedObjectsEvent implements Event<TrackedObject> {
 
     @Override
     public void setFuture() {
-
+        // TODO Auto-generated method stub
     }
 }

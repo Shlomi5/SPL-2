@@ -53,10 +53,8 @@ public class LiDarService extends MicroService {
                     DetectedObjectsEvent detectedObjectsEvent = detectedObjectsEvents.poll();
 
                     System.out.println("LidarService: " + detectedObjectsEvent.getStampedDetectedObjects().getTimestamp());
-                    System.out.println("LidarSERVICE: sending TrackedObjectsEvent");
 
                     List<TrackedObject> trackedObjects = LiDarWorkerTracker.processDetectedObjectsEvent(detectedObjectsEvent);
-                    System.out.println("LidarService: " + trackedObjects.size() + " objects tracked");
                     for (TrackedObject trackedObject : trackedObjects) {
                         System.out.println(trackedObject);
                     }

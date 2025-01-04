@@ -17,6 +17,11 @@ public class DetectedObjectsEvent implements Event<StampedDetectedObjects> {
         return stampedDetectedObjects;
     }
 
+    @Override
+    public void setFuture() {
+        // TODO Auto-generated method stub
+    }
+
 
     @Override
     public void setFuture() {
