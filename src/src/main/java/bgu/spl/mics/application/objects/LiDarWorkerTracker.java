@@ -56,8 +56,6 @@ public class LiDarWorkerTracker {
         List<DetectedObject> detectedObjects = stampedDetectedObjects.getDetectedObjects();
 
         for (DetectedObject detectedObject : detectedObjects) {
-            System.out.println("LidarWorkerTracker: ");
-            System.out.println("Detected object: " + detectedObject);
             TrackedObject trackedObject = dataBase.getTrackedObject(detectedObject, timeStamp);
             trackedObjects.add(trackedObject);
         }
@@ -65,5 +63,9 @@ public class LiDarWorkerTracker {
         return trackedObjects;
 
 
+    }
+
+    public void setLastTrackedObjects(List<TrackedObject> allTrackedObjects) {
+        this.lastTrackedObjects = allTrackedObjects;
     }
 }

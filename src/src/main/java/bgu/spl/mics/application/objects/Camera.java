@@ -80,14 +80,15 @@ public class Camera {
     public StampedDetectedObjects checkAndDetectObjects(int time) {
         int frequencyInt = getFrequency();
         int timeOfLastCapture = time - frequencyInt + 1;
-        List<DetectedObject> newObjects = new CopyOnWriteArrayList<>();
+        List<DetectedObject> detectedObjects = new CopyOnWriteArrayList<>();
         for (StampedDetectedObjects stampedObj : cameraData){
             if ((timeOfLastCapture <= stampedObj.getTimestamp()) && (stampedObj.getTimestamp() <= time)){
-                newObjects.addAll(stampedObj.getDetectedObjects());
+                List<DetectedObject> newDetectedObjects = stampedObj.getDetectedObjects();
+                detectedObjects.addAll(newDetectedObjects);
             }
         }
-        if (newObjects!=null){
-            StampedDetectedObjects stampedDetectedObjects = new StampedDetectedObjects(new AtomicInteger(time),newObjects);
+        if (detectedObjects!=null){
+            StampedDetectedObjects stampedDetectedObjects = new StampedDetectedObjects(new AtomicInteger(time),detectedObjects);
             return stampedDetectedObjects;
         }
         else{
@@ -95,6 +96,9 @@ public class Camera {
         }
     }
 
+    public STATUS getStatus() {
+        return status;
+    }
 
 
 //    public void detectObjects(StampedDetectedObjects detectedObjects) {

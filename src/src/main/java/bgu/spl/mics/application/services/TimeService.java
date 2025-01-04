@@ -1,6 +1,8 @@
 package main.java.bgu.spl.mics.application.services;
 
 import main.java.bgu.spl.mics.MicroService;
+import main.java.bgu.spl.mics.application.messages.broadcasts.CrashedBroadcast;
+import main.java.bgu.spl.mics.application.messages.broadcasts.TerminatedBroadcast;
 import main.java.bgu.spl.mics.application.messages.broadcasts.TickBroadcast;
 
 /**
@@ -20,8 +22,8 @@ public class TimeService extends MicroService {
      */
     public TimeService(int TickTime, int Duration) {
         super("TimeService");
-        this.tickTime = TickTime ;
-        this.duration = Duration;
+        this.tickTime = TickTime;
+        this.duration = Duration + 1;
     }
 
     /**
@@ -30,6 +32,12 @@ public class TimeService extends MicroService {
      */
     @Override
     protected void initialize() {
+
+        subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast c) -> {
+            System.out.println("TimeService Crashed");
+            terminate();
+        });
+
         int counter = 1;
         while (counter < duration) {
             try {
@@ -43,5 +51,9 @@ public class TimeService extends MicroService {
 
         }
         terminate();
+        sendBroadcast(new TerminatedBroadcast());
+
+
+
     }
 }

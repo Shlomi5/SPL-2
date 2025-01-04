@@ -1,6 +1,8 @@
 package main.java.bgu.spl.mics.application.services;
 
 import main.java.bgu.spl.mics.MicroService;
+import main.java.bgu.spl.mics.application.messages.broadcasts.CrashedBroadcast;
+import main.java.bgu.spl.mics.application.messages.broadcasts.TerminatedBroadcast;
 import main.java.bgu.spl.mics.application.messages.broadcasts.TickBroadcast;
 import main.java.bgu.spl.mics.application.messages.events.DetectedObjectsEvent;
 import main.java.bgu.spl.mics.application.messages.events.TrackedObjectsEvent;
@@ -9,6 +11,7 @@ import main.java.bgu.spl.mics.application.objects.TrackedObject;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * LiDarService is responsible for processing data from the LiDAR sensor and
@@ -30,10 +33,9 @@ public class LiDarService extends MicroService {
      * @param LiDarWorkerTracker A LiDAR Tracker worker object that this service will use to process data.
      */
     public LiDarService(LiDarWorkerTracker LiDarWorkerTracker) {
-        super("LidarService");
+        super("LidarService " + LiDarWorkerTracker.getId());
         this.LiDarWorkerTracker = LiDarWorkerTracker;
         detectedObjectsEvents = new ConcurrentLinkedQueue<>();
-        // TODO Implement this
     }
 
     /**
@@ -44,25 +46,44 @@ public class LiDarService extends MicroService {
     @Override
     protected void initialize() {
         subscribeEvent(DetectedObjectsEvent.class, (event) -> {
+            System.out.println(getName() + " got DetectedObjectsEvent");
             detectedObjectsEvents.add(event);
         });
 
         subscribeBroadcast(TickBroadcast.class, (tick) -> {
             if (tick.getTime() % LiDarWorkerTracker.getFrequency() == 0) {
+                List<TrackedObject> allTrackedObjects = new CopyOnWriteArrayList<>();
                 while (!detectedObjectsEvents.isEmpty()) {
+
+                    System.out.println(getName() + " Working on DetectedObjectsEvents");
                     DetectedObjectsEvent detectedObjectsEvent = detectedObjectsEvents.poll();
-
-
                     List<TrackedObject> trackedObjects = LiDarWorkerTracker.processDetectedObjectsEvent(detectedObjectsEvent);
-                    for (TrackedObject trackedObject : trackedObjects) {
-                        System.out.println(trackedObject);
-                    }
+                    allTrackedObjects.addAll(trackedObjects);
 
-                    TrackedObjectsEvent trackedObjectsEvent = new TrackedObjectsEvent(trackedObjects);
-                    sendEvent(trackedObjectsEvent);
+                    /*for (TrackedObject trackedObject : trackedObjects) {
+                        System.out.println(trackedObject);
+                    }*/
 
                 }
+
+                if (!allTrackedObjects.isEmpty()) {
+                    LiDarWorkerTracker.setLastTrackedObjects(allTrackedObjects);
+                    TrackedObjectsEvent trackedObjectsEvent = new TrackedObjectsEvent(allTrackedObjects);
+                    sendEvent(trackedObjectsEvent);
+                }
             }
+        });
+
+        this.subscribeBroadcast(TerminatedBroadcast.class, (broadcast) -> {
+            System.out.println(getName() + " terminated");
+            LiDarWorkerTracker.terminate();
+            this.terminate();
+        });
+
+        this.subscribeBroadcast(CrashedBroadcast.class, (broadcast) -> {
+            System.out.println(getName() + " crashed");
+            LiDarWorkerTracker.crash();
+            this.terminate();
         });
 
 
