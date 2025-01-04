@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public abstract class MicroService implements Runnable {
 
 
-    private ConcurrentHashMap<Class<? extends Message>, Callback> messageCallbackMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Class<? extends Message>, Callback> messageCallbackMap = new ConcurrentHashMap<>();
     private final MessageBusImpl messageBus = MessageBusImpl.getInstance();
     private boolean terminated = false;
     private final String name;

@@ -1,5 +1,8 @@
 package main.java.bgu.spl.mics;
 
+import main.java.bgu.spl.mics.application.messages.events.DetectedObjectsEvent;
+import main.java.bgu.spl.mics.application.services.LiDarService;
+
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -13,11 +16,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  * All other methods and members you add the class must be private.
  */
 public class MessageBusImpl implements MessageBus {
-	ConcurrentHashMap<MicroService, ConcurrentLinkedQueue<Message>> microServiceQueueHashMap;
+	final ConcurrentHashMap<MicroService, ConcurrentLinkedQueue<Message>> microServiceQueueHashMap;
 	final ConcurrentHashMap<Class<? extends Event<?>>, CopyOnWriteArrayList<MicroService>> eventMicroServicesHashMap;
 	final ConcurrentHashMap<Class<? extends Broadcast>, CopyOnWriteArrayList<MicroService>> broadcastMicroServicesHashMap;
-	ConcurrentHashMap<Event<?>, Future<?>> eventFutures;
-	ConcurrentHashMap<Class<? extends Event<?>>, AtomicInteger> roundRobinIndices;
+	final ConcurrentHashMap<Event<?>, Future<?>> eventFutures;
+	final ConcurrentHashMap<Class<? extends Event<?>>, AtomicInteger> roundRobinIndices;
 
 	private static class SingletonHolder {
 		private static final MessageBusImpl instance = new MessageBusImpl();
@@ -32,21 +35,22 @@ public class MessageBusImpl implements MessageBus {
 		broadcastMicroServicesHashMap = new ConcurrentHashMap<>();
 		eventFutures = new ConcurrentHashMap<>();
 		roundRobinIndices = new ConcurrentHashMap<>();
-
 	}
 
 
 
 	@Override
 	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
-		CopyOnWriteArrayList<MicroService> microServices = eventMicroServicesHashMap.get(type);
-		Future<T> future = new Future<>();
-		if (microServices == null) {
-			microServices = new CopyOnWriteArrayList<>();
-			eventMicroServicesHashMap.put(type, microServices);
-			roundRobinIndices.put(type, new AtomicInteger(0));
+		synchronized (eventMicroServicesHashMap) {
+			Future<T> future = new Future<>();
+			CopyOnWriteArrayList<MicroService> microServices = eventMicroServicesHashMap.get(type);
+			if (microServices == null) {
+				microServices = new CopyOnWriteArrayList<>();
+				eventMicroServicesHashMap.put(type, microServices);
+				roundRobinIndices.put(type, new AtomicInteger(0));
+			}
+			microServices.add(m);
 		}
-		microServices.add(m);
 	}
 
 	@Override
@@ -103,7 +107,7 @@ public class MessageBusImpl implements MessageBus {
 	public void register(MicroService m) {
         ConcurrentLinkedQueue<Message> messageQueue =
 				microServiceQueueHashMap.computeIfAbsent(m, k -> new ConcurrentLinkedQueue<>());
-    }
+	}
 
 	@Override
 	public void unregister(MicroService m) {

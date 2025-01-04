@@ -10,7 +10,6 @@ import main.java.bgu.spl.mics.application.services.LiDarService;
 import main.java.bgu.spl.mics.application.services.TimeService;
 
 import java.io.FileNotFoundException;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**

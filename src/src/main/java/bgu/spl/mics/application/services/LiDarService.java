@@ -70,5 +70,9 @@ public class LiDarService extends MicroService {
 
     }
 
+    public LiDarWorkerTracker getLiDarWorkerTracker() {
+        return LiDarWorkerTracker;
+    }
+
 
 }
