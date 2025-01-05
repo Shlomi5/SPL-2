@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class GPSIMU {
     private AtomicInteger currentTick;
     private final STATUS status;
-    private final List<Pose> poseList;
+    private final List<Pose> poseList; // TODO: should be in the Global dataBase of the GPSIMU
     private final List<Pose> poseTillNow;
 
     public GPSIMU(String path) {
