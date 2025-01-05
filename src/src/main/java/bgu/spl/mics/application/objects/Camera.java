@@ -25,6 +25,8 @@ public class Camera {
     private List<StampedDetectedObjects> cameraData;
     private StampedDetectedObjects lastStampedDetectedObjects;
 
+    private int lastTime;
+
     private CameraDatabase cameraDatabase;
 
 
@@ -39,6 +41,12 @@ public class Camera {
     public void loadDataBase(String path) {
         cameraDatabase = CameraDatabase.getInstance(path);
         cameraData = cameraDatabase.getCameraData(cameraKey);
+        lastTime = 0;
+        for (StampedDetectedObjects stampedDetectedObjects : cameraData){
+            if (stampedDetectedObjects.getTimestamp() > lastTime){
+                lastTime = stampedDetectedObjects.getTimestamp();
+            }
+        }
     }
 
 
@@ -68,6 +76,20 @@ public class Camera {
 
 
     public StampedDetectedObjects checkAndDetectObjects(int time) {
+        List<DetectedObject> detectedObjects = getDetectedObjects(time);
+        if (!detectedObjects.isEmpty()){
+            StampedDetectedObjects stampedDetectedObjects = new StampedDetectedObjects(new AtomicInteger(time),detectedObjects);
+            if (!containsError(detectedObjects)){
+                lastStampedDetectedObjects = stampedDetectedObjects;
+            }
+            return stampedDetectedObjects;
+        }
+        else{
+            return null;
+        }
+    }
+
+    private List<DetectedObject> getDetectedObjects(int time) {
         int frequencyInt = getFrequency();
         int timeOfLastCapture = time - frequencyInt + 1;
         List<DetectedObject> detectedObjects = new CopyOnWriteArrayList<>();
@@ -77,17 +99,7 @@ public class Camera {
                 detectedObjects.addAll(newDetectedObjects);
             }
         }
-        if (detectedObjects!=null){
-            StampedDetectedObjects stampedDetectedObjects = new StampedDetectedObjects(new AtomicInteger(time),detectedObjects);
-            if (!containsError(detectedObjects)){
-                lastStampedDetectedObjects = stampedDetectedObjects;
-                System.out.println("TIME: " + time + " " + fullName() + " LAST DETECTED STAMPED " + stampedDetectedObjects);
-            }
-            return stampedDetectedObjects;
-        }
-        else{
-            return null;
-        }
+        return detectedObjects;
     }
 
     private boolean containsError(List<DetectedObject> detectedObjects) {
@@ -104,7 +116,7 @@ public class Camera {
     }
 
 
-
-
-
+    public int getLastTime() {
+        return lastTime;
+    }
 }

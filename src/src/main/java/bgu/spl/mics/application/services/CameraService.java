@@ -11,6 +11,8 @@ import main.java.bgu.spl.mics.application.objects.Error;
 import main.java.bgu.spl.mics.application.objects.STATUS;
 import main.java.bgu.spl.mics.application.objects.StampedDetectedObjects;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * CameraService is responsible for processing data from the camera and
  * sending DetectObjectsEvents to LiDAR workers.
@@ -20,18 +22,28 @@ import main.java.bgu.spl.mics.application.objects.StampedDetectedObjects;
  */
 public class CameraService extends MicroService {
     private Camera camera;
+    private final int OVER_TIME;
+    private boolean isOver = false;
 
     public CameraService(Camera camera) {
         super("CameraService " + camera.getId());
         this.camera = camera;
+        this.OVER_TIME = camera.getLastTime();
     }
 
     protected void initialize() {
         System.out.println("Got BroadcastTick");
         this.subscribeBroadcast(TickBroadcast.class, (tick) -> {
+
+            if (tick.getTime() > OVER_TIME && !isOver) {
+                System.out.println(camera.fullName() + " is over");
+                isOver = true;
+                return;
+            }
+
             if (tick.getTime() % this.camera.getFrequency() == 0) {
                 StampedDetectedObjects detectedObjects = this.camera.checkAndDetectObjects(tick.getTime());
-                if (!detectedObjects.getDetectedObjects().isEmpty()) {
+                if (!(detectedObjects == null)) {
                     boolean error = checkForError(detectedObjects);
                     if (!error) {
                         DetectedObjectsEvent detectedObjectsEvent = new DetectedObjectsEvent(detectedObjects);
@@ -54,16 +66,7 @@ public class CameraService extends MicroService {
         });
 
         this.subscribeBroadcast(CrashedBroadcast.class, (broadcast) -> {
-            StampedDetectedObjects lastDetectedObjects = camera.getLastStampedDetectedObjects();
-            for (DetectedObject obj : lastDetectedObjects.getDetectedObjects()) {
-                if (obj.getId().equals("ERROR")) {
-                   lastDetectedObjects.getDetectedObjects().remove(obj);
-                }
-            }
-
             broadcast.getError().addCameraFrame(camera.fullName(), camera.getLastStampedDetectedObjects());
-
-
             camera.crash();
             System.out.println(camera.fullName() + " crashed");
             this.terminate();
@@ -76,7 +79,7 @@ public class CameraService extends MicroService {
     private boolean checkForError(StampedDetectedObjects detectedObjects) {
         for (DetectedObject obj : detectedObjects.getDetectedObjects()) {
             if (obj.getId().equals("ERROR")) {
-                Error error = new Error(camera.fullName(), obj.getDescription());
+                Error error = new Error(camera.fullName(), obj.getDescription(), new AtomicInteger(detectedObjects.getTimestamp()));
                 sendBroadcast(new CrashedBroadcast(error));
                 return true;
             }

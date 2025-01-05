@@ -22,24 +22,33 @@ public class LiDarDataBase {
 
 
     private List<StampedCloudPoints> cloudPoints;
+    private int lastTime;
 
 
-    /**
-     * Returns the cloud points for a specific detected object.
-     * @param detectedObject The detected object.
-     * @param timeStamp The time stamp of the detected object.
-     * @return The tracked object.
-     */
-    public TrackedObject getTrackedObject(DetectedObject detectedObject, long timeStamp) {
+//    /**
+//     * Returns the cloud points for a specific detected object.
+//     * @param detectedObject The detected object.
+//     * @param timeStamp The time stamp of the detected object.
+//     * @return The tracked object.
+//     */
+//    public TrackedObject getTrackedObject(DetectedObject detectedObject, int timeStamp) {
+//
+//        String detectedObjectId = detectedObject.getId();
+//        for (StampedCloudPoints stampedCloudPoints : cloudPoints) {
+//            if (stampedCloudPoints.getId().equals(detectedObjectId) && timeStamp >= stampedCloudPoints.getTimestamp() && !stampedCloudPoints.isRead()) {
+//                stampedCloudPoints.markRead();
+//                return new TrackedObject(detectedObjectId, timeStamp,detectedObject.getDescription(),stampedCloudPoints.getCloudPoints());
+//            }
+//        }
+//        return null;
+//    }
 
-        String detectedObjectId = detectedObject.getId();
-        for (StampedCloudPoints stampedCloudPoints : cloudPoints) {
-            if (stampedCloudPoints.getId().equals(detectedObjectId) && timeStamp >= stampedCloudPoints.getTimestamp() && !stampedCloudPoints.isRead()) {
-                stampedCloudPoints.markRead();
-                return new TrackedObject(detectedObjectId, timeStamp,detectedObject.getDescription(),stampedCloudPoints.getCloudPoints());
-            }
-        }
-        return null;
+    public List<StampedCloudPoints> getCloudPoints() {
+        return cloudPoints;
+    }
+
+    public int getLastTime() {
+        return lastTime;
     }
 
     private static class SingletonHolder {
@@ -55,6 +64,13 @@ public class LiDarDataBase {
     public static LiDarDataBase getInstance(String filePath) {
         if (SingletonHolder.instance.cloudPoints.isEmpty()) {
             SingletonHolder.instance.cloudPoints = loadCloudPoints(filePath);
+            int lastTime = 0;
+            for (StampedCloudPoints stampedCloudPoints : SingletonHolder.instance.cloudPoints) {
+                if (stampedCloudPoints.getTimestamp() > lastTime) {
+                   lastTime = stampedCloudPoints.getTimestamp();
+                }
+            }
+            SingletonHolder.instance.lastTime = lastTime;
         }
         return SingletonHolder.instance;
 
@@ -71,6 +87,7 @@ public class LiDarDataBase {
 
                 // Extract the basic fields
                 int time = jsonObject.get("time").getAsInt();
+                // Update lastTime if necessary
                 String id = jsonObject.get("id").getAsString();
 
                 // Deserialize cloudPoints as List<double[]>
