@@ -10,6 +10,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -21,6 +22,7 @@ public class LiDarDataBase {
 
 
     private List<StampedCloudPoints> cloudPoints;
+
 
     /**
      * Returns the cloud points for a specific detected object.
@@ -102,5 +104,6 @@ public class LiDarDataBase {
 
     private LiDarDataBase() {
         cloudPoints = new CopyOnWriteArrayList<>();
+
     }
 }

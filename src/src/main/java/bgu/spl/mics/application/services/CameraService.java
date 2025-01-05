@@ -86,7 +86,7 @@ public class CameraService extends MicroService {
 
     private void printDetectedObjects(StampedDetectedObjects detectedObjects) {
         System.out.println("Time: " + detectedObjects.getTimestamp());
-        System.out.println("Detected Objects:");
+        System.out.println( getName() + " Detected Objects:");
 
         for (DetectedObject obj : detectedObjects.getDetectedObjects()) {
             System.out.println("  - " + obj);

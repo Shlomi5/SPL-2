@@ -6,15 +6,17 @@ import main.java.bgu.spl.mics.application.messages.broadcasts.TerminatedBroadcas
 import main.java.bgu.spl.mics.application.messages.broadcasts.TickBroadcast;
 import main.java.bgu.spl.mics.application.objects.StatisticalFolder;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * TimeService acts as the global timer for the system, broadcasting TickBroadcast messages
  * at regular intervals and controlling the simulation's duration.
  */
 public class TimeService extends MicroService {
 
-    int tickTime;
-    int duration;
-    int counter = 1;
+    AtomicInteger tickTime;
+    AtomicInteger duration;
+    AtomicInteger counter = new AtomicInteger(1);
 
     /**
      * Constructor for TimeService.
@@ -22,10 +24,10 @@ public class TimeService extends MicroService {
      * @param TickTime The duration of each tick in milliseconds.
      * @param Duration The total number of ticks before the service terminates.
      */
-    public TimeService(int TickTime, int Duration) {
+    public TimeService(AtomicInteger TickTime, AtomicInteger Duration) {
         super("TimeService");
         this.tickTime = TickTime;
-        this.duration = Duration + 1;
+        this.duration = new AtomicInteger(Duration.get()+1);
     }
 
     /**
@@ -51,19 +53,19 @@ public class TimeService extends MicroService {
 
         subscribeBroadcast(TickBroadcast.class, (TickBroadcast t) -> {
             try {
-                Thread.sleep(tickTime * 1000L);
+                Thread.sleep(tickTime.get() * 1000L);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             System.out.println("TimeService: " + counter);
             sendBroadcast(new TickBroadcast(counter));
-            counter = counter + 1;
+            counter = new AtomicInteger(counter.get() + 1);
             StatisticalFolder.getInstance().incrementSystemRuntime(1);
-            if (counter >= duration) {
+            if (counter.get() >= duration.get()) {
                 sendBroadcast(new TerminatedBroadcast());
             }
         });
-        if (counter < duration) {
+        if (counter.get() < duration.get()) {
             sendBroadcast(new TickBroadcast(counter));
         }
         else {

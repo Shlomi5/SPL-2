@@ -25,7 +25,7 @@ public class LiDarWorkerTracker {
         lastTrackedObjects = new ArrayList<>();
     }
 
-    public void LoadDataBase(String path) {
+    public void loadDataBase(String path) {
         this.dataBase = LiDarDataBase.getInstance(path);
     }
 
@@ -65,8 +65,12 @@ public class LiDarWorkerTracker {
 
         for (DetectedObject detectedObject : detectedObjects) {
             TrackedObject trackedObject = dataBase.getTrackedObject(detectedObject, timeStamp);
-            trackedObjects.add(trackedObject);
-            StatisticalFolder.getInstance().incrementNumTrackedObjects(1);
+            System.out.println("LiDarWorkerTracker " + id + " detected object: " + trackedObject);
+            if (trackedObject != null){
+                trackedObjects.add(trackedObject);
+                StatisticalFolder.getInstance().incrementNumTrackedObjects(1);
+            }
+
         }
 
         lastTrackedObjects = trackedObjects;
