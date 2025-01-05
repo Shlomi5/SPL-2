@@ -4,6 +4,7 @@ import main.java.bgu.spl.mics.MicroService;
 import main.java.bgu.spl.mics.application.messages.broadcasts.CrashedBroadcast;
 import main.java.bgu.spl.mics.application.messages.broadcasts.TerminatedBroadcast;
 import main.java.bgu.spl.mics.application.messages.broadcasts.TickBroadcast;
+import main.java.bgu.spl.mics.application.objects.StatisticalFolder;
 
 /**
  * TimeService acts as the global timer for the system, broadcasting TickBroadcast messages
@@ -13,6 +14,7 @@ public class TimeService extends MicroService {
 
     int tickTime;
     int duration;
+    int counter = 1;
 
     /**
      * Constructor for TimeService.
@@ -35,26 +37,38 @@ public class TimeService extends MicroService {
 
         subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast c) -> {
             System.out.println("TimeService Crashed");
+            System.out.println("Statistics: " + StatisticalFolder.getInstance());
+            System.out.println("Statistics Json: " + StatisticalFolder.getInstance().createJson());
             terminate();
         });
 
-        int counter = 1;
-        while (counter < duration) {
+        subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast t) -> {
+            System.out.println("TimeService Terminated");
+            System.out.println("Statistics: " + StatisticalFolder.getInstance());
+            System.out.println("Statistics Json: " + StatisticalFolder.getInstance().createJson());
+            terminate();
+        });
+
+        subscribeBroadcast(TickBroadcast.class, (TickBroadcast t) -> {
             try {
-                Thread.sleep(tickTime * 1000);
+                Thread.sleep(tickTime * 1000L);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             System.out.println("TimeService: " + counter);
             sendBroadcast(new TickBroadcast(counter));
             counter = counter + 1;
-
+            StatisticalFolder.getInstance().incrementSystemRuntime(1);
+            if (counter >= duration) {
+                sendBroadcast(new TerminatedBroadcast());
+            }
+        });
+        if (counter < duration) {
+            sendBroadcast(new TickBroadcast(counter));
         }
-        System.out.println("TimeService Terminated");
-        terminate();
-        sendBroadcast(new TerminatedBroadcast());
-
-
-
+        else {
+            sendBroadcast(new TerminatedBroadcast());
+            terminate();
+        }
     }
 }

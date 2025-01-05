@@ -22,8 +22,6 @@ public class LiDarDataBase {
 
     private List<StampedCloudPoints> cloudPoints;
 
-
-
     /**
      * Returns the cloud points for a specific detected object.
      * @param detectedObject The detected object.

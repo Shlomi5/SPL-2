@@ -34,6 +34,7 @@ public class FusionSlam {
             if (!found) {
                 LandMark newLandmark = new LandMark(id, trackedObject.getDescription(), trackedObject.getCloudPoints());
                 landmarks.add(newLandmark);
+                StatisticalFolder.getInstance().addLandmark(newLandmark);
             }
         }
         System.out.println("Landmarks Till Now: " + landmarks);

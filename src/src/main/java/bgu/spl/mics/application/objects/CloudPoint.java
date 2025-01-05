@@ -7,7 +7,6 @@ package main.java.bgu.spl.mics.application.objects;
 public class CloudPoint {
     private final double x;
     private final double y;
-    private final double z = 0.104; // Fixed value for z-coordinate
 
     public CloudPoint(double x, double y) {
         this.x = x;
@@ -24,7 +23,7 @@ public class CloudPoint {
 
     @Override
     public String toString() {
-        return String.format("CloudPoint{x=%.2f, y=%.2f, z=%.3f}", x, y, z);
+        return String.format("CloudPoint{x=%.2f, y=%.2f}", x, y);
     }
 
 }

@@ -1,5 +1,7 @@
 package main.java.bgu.spl.mics;
 
+import main.java.bgu.spl.mics.application.messages.broadcasts.CrashedBroadcast;
+import main.java.bgu.spl.mics.application.messages.broadcasts.TerminatedBroadcast;
 import main.java.bgu.spl.mics.application.messages.events.DetectedObjectsEvent;
 import main.java.bgu.spl.mics.application.services.LiDarService;
 
@@ -128,7 +130,7 @@ public class MessageBusImpl implements MessageBus {
 		}
 
 		long startTime = System.currentTimeMillis();
-		long timeout = 500; // 5 seconds timeout, you can adjust as needed
+		long timeout = 500; // Timeout in milliseconds, adjust as needed
 		while (messageQueue.isEmpty()) {
 			long elapsedTime = System.currentTimeMillis() - startTime;
 			long remainingTime = timeout - elapsedTime;
@@ -140,9 +142,24 @@ public class MessageBusImpl implements MessageBus {
 			wait(remainingTime); // Wait for the remaining time
 		}
 
-		return messageQueue.poll(); // Return the next message
+		// Check for CrashedBroadcast or TerminatedBroadcast messages
+		Message selectedMessage = null;
+		for (Message msg : messageQueue) {
+			if (msg instanceof CrashedBroadcast || msg instanceof TerminatedBroadcast) {
+				selectedMessage = msg;
+				break; // Stop at the first match
+			}
+		}
+
+		if (selectedMessage != null) {
+			messageQueue.remove(selectedMessage); // Remove the selected message
+			return selectedMessage; // Return the selected message
+		}
+
+		return messageQueue.poll(); // Return the next message if no special message found
 	}
 
-	
+
+
 
 }

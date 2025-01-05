@@ -17,7 +17,6 @@
             "time": 6,
             "detectedObjects": [
                 {"id": "Wall_4", "description": "Wall"},
-                {"id": "ERROR", "description": "Camera Disconnected"},
                 {"id": "Circular_Base_1", "description": "Circular Base"}
             ]
         },
