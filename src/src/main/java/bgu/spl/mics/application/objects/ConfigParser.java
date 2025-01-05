@@ -48,7 +48,7 @@ public class ConfigParser {
             services.add(timeService);
 
             System.out.println("Parsing FusionSlam...");
-            FusionSlam fusionSlam = new FusionSlam();
+            FusionSlam fusionSlam = FusionSlam.getInstance();
             FusionSlamService fusionSlamService = new FusionSlamService(fusionSlam);
             services.add(fusionSlamService);
 

@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class CameraDatabase {
     ConcurrentHashMap<String,List<StampedDetectedObjects>> camerasData;
 
-    public List<StampedDetectedObjects> getCameraData(String cameraKey) {
+    public final List<StampedDetectedObjects> getCameraData(String cameraKey) {
         return camerasData.get(cameraKey);
     }
 

@@ -14,7 +14,7 @@ import main.java.bgu.spl.mics.application.objects.GPSIMU;
  */
 public class PoseService extends MicroService {
 
-    GPSIMU gpsimu;
+    final GPSIMU gpsimu;
     /**
      * Constructor for PoseService.
      *
@@ -32,9 +32,11 @@ public class PoseService extends MicroService {
     @Override
     protected void initialize() {
         subscribeBroadcast(TickBroadcast.class, (TickBroadcast tick) -> {
-            gpsimu.addCurrentPose(tick.getTime()); //TODO:also change here
-            sendEvent(new PoseEvent(gpsimu.getCurrentPose())); //TODO:should be in the GPSIMU dataBase and the shared globally
-            printMe();
+            synchronized (gpsimu) {
+                gpsimu.addCurrentPose(tick.getTime());
+                sendEvent(new PoseEvent(gpsimu.getCurrentPose()));
+                printMe();
+            }
         });
         subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast crash) -> {
             gpsimu.crash();
