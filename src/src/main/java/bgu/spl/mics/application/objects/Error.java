@@ -7,13 +7,11 @@ public class Error {
     private String error;
     private LastFrames lastFrames;
     private List<Pose> poses;
-    private StatisticalFolder statisticalFolder;
 
     public Error(String faultySensor,String error){
         this.faultySensor = faultySensor;
         this.error = error;
         lastFrames = new LastFrames();
-        statisticalFolder = new StatisticalFolder();
     }
 
     public void addCameraFrame(String cameraId, StampedDetectedObjects frame) {
@@ -28,9 +26,6 @@ public class Error {
         this.poses = poses;
     }
 
-    public void setStatisticalFolder(StatisticalFolder statisticalFolder){
-        this.statisticalFolder = statisticalFolder;
-    }
 
 
     @Override
@@ -40,7 +35,6 @@ public class Error {
                 .append(", error='").append(error).append('\'')
                 .append(", lastFrames=").append(lastFrames)
                 .append(", poses=").append(poses)
-                .append(", statisticalFolder=").append(statisticalFolder)
                 .append('}');
         return sb.toString();
     }

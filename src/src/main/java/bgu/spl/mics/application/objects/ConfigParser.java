@@ -72,6 +72,11 @@ public class ConfigParser {
             JsonObject cameraConfig = element.getAsJsonObject();
             AtomicInteger id = new AtomicInteger(cameraConfig.get("id").getAsInt());
             AtomicInteger frequency = new AtomicInteger(cameraConfig.get("frequency").getAsInt());
+
+            // Check FREQ = 0
+            if (frequency.get() == 0) {
+              frequency.set(1);
+            }
             String cameraKey = cameraConfig.get("camera_key").getAsString();
 
             Camera camera = new Camera(id, frequency, cameraKey);
@@ -93,6 +98,11 @@ public class ConfigParser {
             JsonObject lidarConfig = element.getAsJsonObject();
             AtomicInteger id = new AtomicInteger(lidarConfig.get("id").getAsInt());
             AtomicInteger frequency = new AtomicInteger(lidarConfig.get("frequency").getAsInt());
+
+            // Check FREQ = 0
+            if (frequency.get() == 0) {
+                frequency.set(1);
+            }
 
             LiDarWorkerTracker lidarWorker = new LiDarWorkerTracker(id, frequency);
             lidarWorker.loadDataBase(folder + lidarDataPath);

@@ -31,7 +31,7 @@ public class GurionRockRunner {
     public static void main(String[] args) throws FileNotFoundException {
 
 
-        List<Runnable> services = ConfigParser.ParseConfigFile("example input" ,"configuration_file.json");
+        List<Runnable> services = ConfigParser.ParseConfigFile("example_input_with_error" ,"configuration_file.json");
         for (Runnable service : services) {
             Thread thread = new Thread(service);
             thread.start();

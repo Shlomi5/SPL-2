@@ -169,6 +169,8 @@ public abstract class MicroService implements Runnable {
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
         }
     }
