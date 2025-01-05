@@ -1,22 +1,20 @@
 package main.java.bgu.spl.mics.application.messages.broadcasts;
 
 import main.java.bgu.spl.mics.Broadcast;
+import main.java.bgu.spl.mics.application.objects.Error;
 
 public class CrashedBroadcast implements Broadcast {
-    private String faultySensor;
-    private String error;
 
-    public CrashedBroadcast(String faultySensor, String error) {
-        this.faultySensor = faultySensor;
+    private Error error;
+
+    public CrashedBroadcast(Error error){
         this.error = error;
     }
 
-    public String getFaultySensor() {
-        return faultySensor;
-    }
-
-    public String getError() {
+    public Error getError(){
         return error;
     }
+
+
 
 }

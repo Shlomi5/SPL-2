@@ -34,14 +34,14 @@ public class GurionRockRunner {
         camera.loadCameraData("example input/camera_data.json", 1);
         CameraService cameraService = new CameraService(camera);
 
-        TimeService timeService = new TimeService(1, 30);
+        TimeService timeService = new TimeService(1, 10);
 
         FusionSlam fusionSlam = FusionSlam.getInstance();
         FusionSlamService fusionSlamService = new FusionSlamService(fusionSlam);
 
         LiDarWorkerTracker liDarWorkerTracker = new LiDarWorkerTracker(new AtomicInteger(1), new AtomicInteger(5));
         liDarWorkerTracker.LoadDataBase("example input/lidar_data.json");
-        LiDarWorkerTracker liDarWorkerTracker2 = new LiDarWorkerTracker(new AtomicInteger(2), new AtomicInteger(8));
+        LiDarWorkerTracker liDarWorkerTracker2 = new LiDarWorkerTracker(new AtomicInteger(2), new AtomicInteger(1));
         liDarWorkerTracker2.LoadDataBase("example input/lidar_data.json");
 
         LiDarService liDarService = new LiDarService(liDarWorkerTracker);
@@ -57,7 +57,7 @@ public class GurionRockRunner {
         cameraThread.start();
         liDarThread.start();
         liDarThread2.start();
-        fusionSlamThread.start();
+        //fusionSlamThread.start();
 
         // TODO: Parse configuration file.
         // TODO: Initialize system components and services.

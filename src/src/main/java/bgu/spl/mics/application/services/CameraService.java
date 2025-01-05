@@ -7,6 +7,7 @@ import main.java.bgu.spl.mics.application.messages.broadcasts.TickBroadcast;
 import main.java.bgu.spl.mics.application.messages.events.DetectedObjectsEvent;
 import main.java.bgu.spl.mics.application.objects.Camera;
 import main.java.bgu.spl.mics.application.objects.DetectedObject;
+import main.java.bgu.spl.mics.application.objects.Error;
 import main.java.bgu.spl.mics.application.objects.STATUS;
 import main.java.bgu.spl.mics.application.objects.StampedDetectedObjects;
 
@@ -37,10 +38,9 @@ public class CameraService extends MicroService {
                         sendEvent(detectedObjectsEvent);
                         this.printDetectedObjects(detectedObjects);
                     }
-                    else{
-                        crash();
+                    else {
+                        System.out.println(camera.fullName() + " Caused an error");
                     }
-
                 }
             }
 
@@ -48,13 +48,25 @@ public class CameraService extends MicroService {
 
 
         this.subscribeBroadcast(TerminatedBroadcast.class, (broadcast) -> {
+            System.out.println(camera.fullName() + " terminated");
             camera.terminate();
             this.terminate();
         });
 
         this.subscribeBroadcast(CrashedBroadcast.class, (broadcast) -> {
-            crash();
+            StampedDetectedObjects lastDetectedObjects = camera.getLastStampedDetectedObjects();
+            for (DetectedObject obj : lastDetectedObjects.getDetectedObjects()) {
+                if (obj.getId().equals("ERROR")) {
+                   lastDetectedObjects.getDetectedObjects().remove(obj);
+                }
+            }
 
+            broadcast.getError().addCameraFrame(camera.fullName(), camera.getLastStampedDetectedObjects());
+
+
+            camera.crash();
+            System.out.println(camera.fullName() + " crashed");
+            this.terminate();
         });
 
 
@@ -64,7 +76,8 @@ public class CameraService extends MicroService {
     private boolean checkForError(StampedDetectedObjects detectedObjects) {
         for (DetectedObject obj : detectedObjects.getDetectedObjects()) {
             if (obj.getId().equals("ERROR")) {
-                sendBroadcast(new CrashedBroadcast("Camera" + camera.getId(),obj.getDescription()));
+                Error error = new Error(camera.fullName(), obj.getDescription());
+                sendBroadcast(new CrashedBroadcast(error));
                 return true;
             }
         }
@@ -80,11 +93,6 @@ public class CameraService extends MicroService {
         }
     }
 
-    public void crash() {
-        camera.crash();
-        System.out.println("Camera " + camera.getId() + " crashed");
-        this.terminate();
-    }
 
 }
 
