@@ -81,7 +81,6 @@ public class Camera {
             StampedDetectedObjects stampedDetectedObjects = new StampedDetectedObjects(new AtomicInteger(time),detectedObjects);
             if (!containsError(detectedObjects)){
                 lastStampedDetectedObjects = stampedDetectedObjects;
-                System.out.println("TIME: " + time + " " + fullName() + " LAST DETECTED STAMPED " + stampedDetectedObjects);
             }
             return stampedDetectedObjects;
         }

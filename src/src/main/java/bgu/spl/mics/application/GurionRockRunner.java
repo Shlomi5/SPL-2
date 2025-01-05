@@ -36,34 +36,6 @@ public class GurionRockRunner {
             Thread thread = new Thread(service);
             thread.start();
         }
-//        Camera camera = new Camera(new AtomicInteger(1), new AtomicInteger(3),"camera1");
-//
-//        CameraService cameraService = new CameraService(camera);
-//
-//        TimeService timeService = new TimeService(new AtomicInteger(1), new AtomicInteger(10));
-//
-//        FusionSlam fusionSlam = new FusionSlam();
-//        FusionSlamService fusionSlamService = new FusionSlamService(fusionSlam);
-//
-//        LiDarWorkerTracker liDarWorkerTracker = new LiDarWorkerTracker(new AtomicInteger(1), new AtomicInteger(5));
-//        liDarWorkerTracker.loadDataBase("example input/lidar_data.json");
-//        LiDarWorkerTracker liDarWorkerTracker2 = new LiDarWorkerTracker(new AtomicInteger(2), new AtomicInteger(1));
-//        liDarWorkerTracker2.loadDataBase("example input/lidar_data.json");
-//
-//        LiDarService liDarService = new LiDarService(liDarWorkerTracker);
-//        LiDarService liDarService2 = new LiDarService(liDarWorkerTracker2);
-//
-//        Thread liDarThread = new Thread(liDarService);
-//        Thread liDarThread2 = new Thread(liDarService2);
-//        Thread cameraThread = new Thread(cameraService);
-//        Thread timeThread = new Thread(timeService);
-//        Thread fusionSlamThread = new Thread(fusionSlamService);
-//
-//        timeThread.start();
-//        cameraThread.start();
-//        liDarThread.start();
-//        liDarThread2.start();
-//        //fusionSlamThread.start();
 
         // TODO: Parse configuration file.
         // TODO: Initialize system components and services.

@@ -3,6 +3,8 @@ package main.java.bgu.spl.mics;
 import main.java.bgu.spl.mics.application.messages.broadcasts.CrashedBroadcast;
 import main.java.bgu.spl.mics.application.messages.broadcasts.TerminatedBroadcast;
 import main.java.bgu.spl.mics.application.messages.events.DetectedObjectsEvent;
+import main.java.bgu.spl.mics.application.messages.events.PoseEvent;
+import main.java.bgu.spl.mics.application.services.FusionSlamService;
 import main.java.bgu.spl.mics.application.services.LiDarService;
 
 import java.util.*;
@@ -44,6 +46,9 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
 		synchronized (eventMicroServicesHashMap) {
+			if (type.equals(PoseEvent.class)) {
+				System.out.println(m.getName() + " subscribed to PoseEvent \n");
+			}
 			Future<T> future = new Future<>();
 			CopyOnWriteArrayList<MicroService> microServices = eventMicroServicesHashMap.get(type);
 			if (microServices == null) {
@@ -109,6 +114,7 @@ public class MessageBusImpl implements MessageBus {
 	public void register(MicroService m) {
         ConcurrentLinkedQueue<Message> messageQueue =
 				microServiceQueueHashMap.computeIfAbsent(m, k -> new ConcurrentLinkedQueue<>());
+		System.out.println("Registered " + m.getName());
 	}
 
 	@Override
@@ -127,6 +133,10 @@ public class MessageBusImpl implements MessageBus {
 		ConcurrentLinkedQueue<Message> messageQueue = microServiceQueueHashMap.get(m);
 		if (messageQueue == null) {
 			throw new IllegalStateException("MicroService was never registered");
+		}
+
+		if (m instanceof FusionSlamService) {
+			//printAllMessageQueues();
 		}
 
 		long startTime = System.currentTimeMillis();
@@ -156,10 +166,16 @@ public class MessageBusImpl implements MessageBus {
 			return selectedMessage; // Return the selected message
 		}
 
-		return messageQueue.poll(); // Return the next message if no special message found
+		return messageQueue.poll(); // Return the next message if no specia+l message found
 	}
 
-
+	public void printAllMessageQueues() {
+		System.out.println("Printing all message queues:");
+		for (Map.Entry<MicroService, ConcurrentLinkedQueue<Message>> entry : microServiceQueueHashMap.entrySet()) {
+			System.out.println(entry.getKey().getName() + ": " + entry.getValue());
+		}
+		System.out.println();
+	}
 
 
 }

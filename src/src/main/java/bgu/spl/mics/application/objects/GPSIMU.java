@@ -18,9 +18,9 @@ public class GPSIMU {
     private final List<Pose> poseTillNow;
     private final GPSIMUDatabase gpsimuDatabase;
 
-    public GPSIMU(String path) {
+    public GPSIMU(GPSIMUDatabase gpsimuDatabase) {
         this.poseTillNow = new CopyOnWriteArrayList<>();
-        this.gpsimuDatabase = GPSIMUDatabase.getInstance(path);
+        this.gpsimuDatabase = gpsimuDatabase;
         this.currentTick = new AtomicInteger(0);
         this.status = STATUS.UP;
     }
