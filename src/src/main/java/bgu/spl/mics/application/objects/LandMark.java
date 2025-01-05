@@ -1,5 +1,6 @@
 package main.java.bgu.spl.mics.application.objects;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -25,9 +26,7 @@ public class LandMark {
         return description;
     }
 
-    public List<CloudPoint> getCoordinates() {
-        return coordinates;
-    }
+
 
     @Override
     public String toString() {
@@ -36,5 +35,9 @@ public class LandMark {
                 "\t\"description\": \"" + description + "\",\n" +
                 "\t\"coordinates\": " + coordinates + "\n" +
                 "}";
+    }
+
+    public List<CloudPoint> getCloudPoints() {
+        return coordinates;
     }
 }

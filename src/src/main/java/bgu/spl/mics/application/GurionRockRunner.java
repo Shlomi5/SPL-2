@@ -36,7 +36,7 @@ public class GurionRockRunner {
 
         TimeService timeService = new TimeService(1, 30);
 
-        FusionSlam fusionSlam = new FusionSlam();
+        FusionSlam fusionSlam = FusionSlam.getInstance();
         FusionSlamService fusionSlamService = new FusionSlamService(fusionSlam);
 
         LiDarWorkerTracker liDarWorkerTracker = new LiDarWorkerTracker(new AtomicInteger(1), new AtomicInteger(5));

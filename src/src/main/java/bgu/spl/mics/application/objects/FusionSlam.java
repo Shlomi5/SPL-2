@@ -2,6 +2,7 @@ package main.java.bgu.spl.mics.application.objects;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Manages the fusion of sensor data for simultaneous localization and mapping (SLAM).
@@ -11,10 +12,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class FusionSlam {
     // Singleton instance holder
 
-    //landmarks: Array/List of Landmark – Represents the map of the environment.
-    //o Poses: List of type Pose – Represents previous Poses needed for calculations.
-    List<LandMark> landmarks = new CopyOnWriteArrayList<>();
-    List<Pose> poses = new CopyOnWriteArrayList<>();
+    // landmarks: Array/List of Landmark – Represents the map of the environment.
+    // Poses: List of type Pose – Represents previous Poses needed for calculations.
+    private final List<LandMark> landmarks = new CopyOnWriteArrayList<>();
+    private final List<Pose> poses = new CopyOnWriteArrayList<>();
+
+    private FusionSlam() {}
 
     public static FusionSlam getInstance() {
         return FusionSlamHolder.instance;
@@ -22,17 +25,38 @@ public class FusionSlam {
 
     public void addLandmarksFromTrackedObjects(List<TrackedObject> trackedObjects) {
         for (TrackedObject trackedObject : trackedObjects) {
+            List<CloudPoint> globalPoints = transformToGlobalCoordinates(poses.get(poses.size() - 1), trackedObject);
             String id = trackedObject.getId();
             boolean found = false;
+
             for (LandMark landmark : landmarks) {
                 if (landmark.getId().equals(id)) {
-                    landmark.getCoordinates().addAll(trackedObject.getCloudPoints());
                     found = true;
+
+                    // Safely update the CloudPoints
+                    synchronized (landmark) {
+                        int minLength = Math.min(landmark.getCloudPoints().size(), globalPoints.size());
+                        for (int i = 0; i < minLength; i++) {
+                            CloudPoint existingPoint = landmark.getCloudPoints().get(i);
+                            CloudPoint newPoint = globalPoints.get(i);
+
+                            existingPoint.setX((existingPoint.getX() + newPoint.getX()) / 2);
+                            existingPoint.setY((existingPoint.getY() + newPoint.getY()) / 2);
+                        }
+
+                        if (minLength < globalPoints.size()) {
+                            for (int i = minLength; i < globalPoints.size(); i++) {
+                                landmark.getCloudPoints().add(globalPoints.get(i));
+                            }
+                        }
+                    }
+
                     break;
                 }
             }
+
             if (!found) {
-                LandMark newLandmark = new LandMark(id, trackedObject.getDescription(), trackedObject.getCloudPoints());
+                LandMark newLandmark = new LandMark(id, trackedObject.getDescription(), globalPoints);
                 landmarks.add(newLandmark);
                 StatisticalFolder.getInstance().addLandmark(newLandmark);
             }
@@ -54,5 +78,37 @@ public class FusionSlam {
 
     private static class FusionSlamHolder {
         private static final FusionSlam instance = new FusionSlam();
+    }
+
+    public static List<CloudPoint> transformToGlobalCoordinates(Pose pose, TrackedObject trackedObject) {
+        List<CloudPoint> globalCloudPoints = new CopyOnWriteArrayList<>();
+
+        // Extract pose parameters
+        double xRobot = pose.getX();
+        double yRobot = pose.getY();
+        double thetaRad = Math.toRadians(pose.getYaw());
+
+        // Cosine and sine of the yaw angle
+        double cosTheta = Math.cos(thetaRad);
+        double sinTheta = Math.sin(thetaRad);
+
+        // Transform each CloudPoint
+        for (CloudPoint localPoint : trackedObject.getCloudPoints()) {
+            double xLocal = localPoint.getX();
+            double yLocal = localPoint.getY();
+
+            // Apply rotation
+            double xRotated = cosTheta * xLocal - sinTheta * yLocal;
+            double yRotated = sinTheta * xLocal + cosTheta * yLocal;
+
+            // Apply translation
+            double xGlobal = xRotated + xRobot;
+            double yGlobal = yRotated + yRobot;
+
+            // Create a new global CloudPoint
+            globalCloudPoints.add(new CloudPoint(xGlobal, yGlobal));
+        }
+
+        return globalCloudPoints;
     }
 }
