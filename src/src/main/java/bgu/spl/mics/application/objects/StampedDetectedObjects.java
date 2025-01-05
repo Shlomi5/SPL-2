@@ -24,4 +24,12 @@ public class StampedDetectedObjects {
         public List<DetectedObject> getDetectedObjects() {
             return objects;
         }
+
+        @Override
+        public String toString() {
+            return "StampedDetectedObjects{" +
+                    "timestamp=" + timestamp +
+                    ", objects=" + objects +
+                    '}';
+        }
 }

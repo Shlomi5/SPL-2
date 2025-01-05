@@ -22,12 +22,14 @@ public class Camera {
     private AtomicInteger frequency;
     private STATUS status;
     private List<StampedDetectedObjects> cameraData;
+    private StampedDetectedObjects lastStampedDetectedObjects;
 
 
     public Camera(AtomicInteger id, AtomicInteger frequency) {
         this.id = id;
         this.frequency = frequency;
         this.status = STATUS.UP;
+        lastStampedDetectedObjects = new StampedDetectedObjects(new AtomicInteger(0), new CopyOnWriteArrayList<>());
     }
 
     public int getFrequency() {
@@ -35,6 +37,14 @@ public class Camera {
     }
     public int getId() {
         return id.get();
+    }
+
+    public StampedDetectedObjects getLastStampedDetectedObjects() {
+        return lastStampedDetectedObjects;
+    }
+
+    public String fullName() {
+        return "camera" + id;
     }
 
     public void crash() {
@@ -89,6 +99,7 @@ public class Camera {
         }
         if (detectedObjects!=null){
             StampedDetectedObjects stampedDetectedObjects = new StampedDetectedObjects(new AtomicInteger(time),detectedObjects);
+            lastStampedDetectedObjects = stampedDetectedObjects;
             return stampedDetectedObjects;
         }
         else{

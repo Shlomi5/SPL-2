@@ -6,6 +6,7 @@ import main.java.bgu.spl.mics.application.messages.broadcasts.TerminatedBroadcas
 import main.java.bgu.spl.mics.application.messages.broadcasts.TickBroadcast;
 import main.java.bgu.spl.mics.application.messages.events.DetectedObjectsEvent;
 import main.java.bgu.spl.mics.application.messages.events.TrackedObjectsEvent;
+import main.java.bgu.spl.mics.application.objects.Error;
 import main.java.bgu.spl.mics.application.objects.LiDarWorkerTracker;
 import main.java.bgu.spl.mics.application.objects.TrackedObject;
 
@@ -58,7 +59,14 @@ public class LiDarService extends MicroService {
                     System.out.println(getName() + " Working on DetectedObjectsEvents");
                     DetectedObjectsEvent detectedObjectsEvent = detectedObjectsEvents.poll();
                     List<TrackedObject> trackedObjects = LiDarWorkerTracker.processDetectedObjectsEvent(detectedObjectsEvent);
-                    allTrackedObjects.addAll(trackedObjects);
+                    boolean error = checkForError(trackedObjects);
+                    if (error) {
+                        System.out.println("LiDar " + LiDarWorkerTracker.getId() + " Caused an error");
+                        return;
+                    }
+                    else{
+                        allTrackedObjects.addAll(trackedObjects);
+                    }
 
                     /*for (TrackedObject trackedObject : trackedObjects) {
                         System.out.println(trackedObject);
@@ -67,7 +75,6 @@ public class LiDarService extends MicroService {
                 }
 
                 if (!allTrackedObjects.isEmpty()) {
-                    LiDarWorkerTracker.setLastTrackedObjects(allTrackedObjects);
                     TrackedObjectsEvent trackedObjectsEvent = new TrackedObjectsEvent(allTrackedObjects);
                     sendEvent(trackedObjectsEvent);
                 }
@@ -81,12 +88,25 @@ public class LiDarService extends MicroService {
         });
 
         this.subscribeBroadcast(CrashedBroadcast.class, (broadcast) -> {
+
+            broadcast.getError().addLidarFrame(LiDarWorkerTracker.fullName(), LiDarWorkerTracker.getLastTrackedObjects());
             System.out.println(getName() + " crashed");
             LiDarWorkerTracker.crash();
             this.terminate();
         });
 
 
+    }
+
+    private boolean checkForError(List<TrackedObject> trackedObjects) {
+        for (TrackedObject obj : trackedObjects) {
+            if (obj.getId().equals("ERROR")) {
+                Error error = new Error(LiDarWorkerTracker.fullName(), "LidarWorkerTracker caused an error");
+                sendBroadcast(new CrashedBroadcast(error));
+                return true;
+            }
+        }
+        return false;
     }
 
 

@@ -50,6 +50,7 @@ public class TimeService extends MicroService {
             counter = counter + 1;
 
         }
+        System.out.println("TimeService Terminated");
         terminate();
         sendBroadcast(new TerminatedBroadcast());
 

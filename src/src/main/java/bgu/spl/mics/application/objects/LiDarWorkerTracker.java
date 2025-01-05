@@ -37,12 +37,20 @@ public class LiDarWorkerTracker {
         return frequency.get();
     }
 
+    public List<TrackedObject> getLastTrackedObjects() {
+        return lastTrackedObjects;
+    }
+
     public void crash() {
         status = STATUS.ERROR;
     }
 
     public void terminate() {
         status = STATUS.DOWN;
+    }
+
+    public String fullName() {
+        return "LiDarWorkerTracker" + id;
     }
 
     public STATUS getStatus() {
@@ -60,12 +68,12 @@ public class LiDarWorkerTracker {
             trackedObjects.add(trackedObject);
         }
 
+        lastTrackedObjects = trackedObjects;
         return trackedObjects;
 
 
     }
 
-    public void setLastTrackedObjects(List<TrackedObject> allTrackedObjects) {
-        this.lastTrackedObjects = allTrackedObjects;
-    }
+
+
 }
