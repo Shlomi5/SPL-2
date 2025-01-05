@@ -11,10 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import main.java.bgu.spl.mics.application.services.CameraService;
-import main.java.bgu.spl.mics.application.services.FusionSlamService;
-import main.java.bgu.spl.mics.application.services.LiDarService;
-import main.java.bgu.spl.mics.application.services.TimeService;
+import main.java.bgu.spl.mics.application.services.*;
 
 public class ConfigParser {
 
@@ -51,6 +48,12 @@ public class ConfigParser {
             FusionSlam fusionSlam = FusionSlam.getInstance();
             FusionSlamService fusionSlamService = new FusionSlamService(fusionSlam);
             services.add(fusionSlamService);
+
+            System.out.println("Parsing GPSIMU...");
+            GPSIMUDatabase gpsimuDatabase = GPSIMUDatabase.getInstance(folder + config.get("poseJsonFile").getAsString());
+            GPSIMU gpsimu = new GPSIMU(gpsimuDatabase);
+            PoseService poseService = new PoseService(gpsimu);
+            services.add(poseService);
 
             return services;
 

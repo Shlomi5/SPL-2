@@ -15,13 +15,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class GPSIMU {
     private AtomicInteger currentTick;
     private final STATUS status;
-    private final List<Pose> poseList; // TODO: should be in the Global dataBase of the GPSIMU
     private final List<Pose> poseTillNow;
+    private final GPSIMUDatabase gpsimuDatabase;
 
-    public GPSIMU(String path) {
-        PoseCreator poseCreator = new PoseCreator();
+    public GPSIMU(GPSIMUDatabase gpsimuDatabase) {
         this.poseTillNow = new CopyOnWriteArrayList<>();
-        this.poseList = poseCreator.createPoseList(path);
+        this.gpsimuDatabase = gpsimuDatabase;
         this.currentTick = new AtomicInteger(0);
         this.status = STATUS.UP;
     }
@@ -32,15 +31,12 @@ public class GPSIMU {
                 return;
             }
         }
-        Pose curr = poseList.get(currentTick.get());
+        Pose curr = gpsimuDatabase.getPoseList().get(time);
         poseTillNow.add(curr);
         this.currentTick = new AtomicInteger(currentTick.incrementAndGet());
     }
 
-    public Pose getCurrentPose() throws Exception {
-        if(poseTillNow.isEmpty()) {
-            throw new Exception("pose array is empty");
-        }
+    public Pose getCurrentPose() {
         return poseTillNow.get(poseTillNow.size()-1);
     }
 
@@ -52,32 +48,7 @@ public class GPSIMU {
         //TODO
     }
 
-    public static class PoseCreator {
 
-        private List<Pose> createPoseList(String path) {
-
-            CopyOnWriteArrayList<Pose> poseList = new CopyOnWriteArrayList<>();
-            try (FileReader reader = new FileReader(path)) {
-                // Create a Gson instance
-                Gson gson = new Gson();
-
-                // Define the type of the list
-                Type poseListType = new TypeToken<List<Pose>>() {
-                }.getType();
-
-                // Parse the JSON file into a list of intermediate objects
-                List<Pose> poseListTemp = gson.fromJson(reader, poseListType);
-
-                // Convert each JSON object to a Pose instance
-                for (Pose pose : poseListTemp) {
-                    poseList.add(new Pose(pose.getTime(), pose.getX(), pose.getY(), pose.getYaw()));
-                }
-            } catch (IOException e) {
-                e.printStackTrace(); // Handle file read errors
-            }
-            return poseList;
-        }
-    }
 }
 
 

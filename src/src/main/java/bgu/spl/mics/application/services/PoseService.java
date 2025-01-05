@@ -1,5 +1,6 @@
 package main.java.bgu.spl.mics.application.services;
 
+import main.java.bgu.spl.mics.MessageBusImpl;
 import main.java.bgu.spl.mics.MicroService;
 import main.java.bgu.spl.mics.application.messages.broadcasts.CrashedBroadcast;
 import main.java.bgu.spl.mics.application.messages.broadcasts.TerminatedBroadcast;
@@ -14,7 +15,7 @@ import main.java.bgu.spl.mics.application.objects.GPSIMU;
  */
 public class PoseService extends MicroService {
 
-    GPSIMU gpsimu;
+    final GPSIMU gpsimu;
     /**
      * Constructor for PoseService.
      *
@@ -32,9 +33,14 @@ public class PoseService extends MicroService {
     @Override
     protected void initialize() {
         subscribeBroadcast(TickBroadcast.class, (TickBroadcast tick) -> {
-            gpsimu.addCurrentPose(tick.getTime()); //TODO:also change here
-            sendEvent(new PoseEvent(gpsimu.getCurrentPose())); //TODO:should be in the GPSIMU dataBase and the shared globally
-            printMe();
+            System.out.println("PoseService received TickBroadcast at time " + tick.getTime());
+            synchronized (gpsimu) {
+                gpsimu.addCurrentPose(tick.getTime());
+                PoseEvent poseEvent = new PoseEvent(gpsimu.getCurrentPose());
+                System.out.println("PoseService sending PoseEvent" + poseEvent.getPose() + " at time " + tick.getTime() + "************************************************************************");
+                sendEvent(poseEvent);
+                printMe();
+            }
         });
         subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast crash) -> {
             gpsimu.crash();
