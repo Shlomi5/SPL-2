@@ -41,7 +41,7 @@ public class LiDarService extends MicroService {
     public LiDarService(LiDarWorkerTracker LiDarWorkerTracker) {
         super("LidarService " + LiDarWorkerTracker.getId());
         this.LiDarWorkerTracker = LiDarWorkerTracker;
-        this.OVER_TIME = LiDarWorkerTracker.getLastTime();
+        this.OVER_TIME = LiDarWorkerTracker.getLastTime() + LiDarWorkerTracker.getFrequency();
         detectedObjectsEvents = new ConcurrentLinkedQueue<>();
     }
 

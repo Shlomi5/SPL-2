@@ -3,7 +3,12 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import main.java.bgu.spl.mics.MessageBusImpl;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -20,9 +25,10 @@ public class StatisticalFolder {
         SingletonHolder.instance.systemRuntime.set(timeStamp);
     }
 
-    public void addDetectedObjects(int size) {
-        numDetectedObjects.addAndGet(size);
+    public static void setError(Error error) {
+        SingletonHolder.instance.error = error;
     }
+
 
     private static class SingletonHolder {
         private static final StatisticalFolder instance = new StatisticalFolder();
@@ -32,6 +38,7 @@ public class StatisticalFolder {
     }
 
     // Fields
+    private Error error;
     private final AtomicInteger systemRuntime;      // Total runtime of the system in ticks
     private final AtomicInteger numDetectedObjects; // Cumulative count of detected objects
     private final AtomicInteger numTrackedObjects;  // Cumulative count of tracked objects
@@ -39,6 +46,7 @@ public class StatisticalFolder {
 
     // Constructor
     public StatisticalFolder() {
+        error = null;
         this.systemRuntime = new AtomicInteger(0);
         this.numDetectedObjects = new AtomicInteger(0);
         this.numTrackedObjects = new AtomicInteger(0);
@@ -76,7 +84,10 @@ public class StatisticalFolder {
     }
 
     public String createJson() {
-        HashMap<String, Object> jsonMap = new HashMap<>();
+        LinkedHashMap<String, Object> jsonMap = new LinkedHashMap<>(); // Use LinkedHashMap to preserve order
+        if (error != null) {
+            jsonMap.put("Error", error);
+        }
         jsonMap.put("systemRuntime", systemRuntime.get());
         jsonMap.put("numDetectedObjects", numDetectedObjects.get());
         jsonMap.put("numTrackedObjects", numTrackedObjects.get());
@@ -90,6 +101,18 @@ public class StatisticalFolder {
 
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         return gson.toJson(jsonMap);
+    }
+
+    public void writeJsonToFile() {
+        String filePath = "output_file.json"; // Fixed file name
+        Path path = Paths.get(filePath);
+        String jsonData = SingletonHolder.instance.createJson();
+        try {
+            Files.write(path, jsonData.getBytes()); // Create and write to file
+            System.out.println("JSON data written to file: " + filePath);
+        } catch (IOException e) {
+            System.err.println("Error writing JSON to file: " + e.getMessage());
+        }
     }
 
 

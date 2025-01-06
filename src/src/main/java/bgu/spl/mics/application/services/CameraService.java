@@ -24,7 +24,7 @@ public class CameraService extends MicroService {
     public CameraService(Camera camera) {
         super("CameraService " + camera.getId());
         this.camera = camera;
-        this.OVER_TIME = camera.getLastTime();
+        this.OVER_TIME = camera.getLastTime() + camera.getFrequency();
     }
 
     protected void initialize() {
