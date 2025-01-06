@@ -75,7 +75,6 @@ public class LiDarService extends MicroService {
                 }
 
                 if (!allTrackedObjects.isEmpty()) {
-                    System.out.println(getName() + " Sending TrackedObjectsEvent+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
                     TrackedObjectsEvent trackedObjectsEvent = new TrackedObjectsEvent(allTrackedObjects);
                     sendEvent(trackedObjectsEvent);
                 }

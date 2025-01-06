@@ -4,9 +4,13 @@ import main.java.bgu.spl.mics.MessageBusImpl;
 import main.java.bgu.spl.mics.MicroService;
 import main.java.bgu.spl.mics.application.messages.broadcasts.CrashedBroadcast;
 import main.java.bgu.spl.mics.application.messages.broadcasts.TerminatedBroadcast;
+import main.java.bgu.spl.mics.application.messages.events.FinishedData;
 import main.java.bgu.spl.mics.application.messages.events.PoseEvent;
 import main.java.bgu.spl.mics.application.messages.events.TrackedObjectsEvent;
 import main.java.bgu.spl.mics.application.objects.FusionSlam;
+
+import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * FusionSlamService integrates data from multiple sensors to build and update
@@ -35,11 +39,9 @@ public class FusionSlamService extends MicroService {
     @Override
     protected void initialize() {
         subscribeEvent(TrackedObjectsEvent.class, (TrackedObjectsEvent trackedObjects) -> {
-            System.out.println("Received TrackedObjectsEvent ------------------------------------------------------------------------------------------------------------------");
             synchronized (lock) {
                 trackedObjectsReceived = true;
                 lastTrackedObjectsEvent = trackedObjects;
-                System.out.println("Booleans status is: " + trackedObjectsReceived + " " + poseReceived);
 
                 if (poseReceived) {
                     fusionSlam.addLandmarksFromTrackedObjects(trackedObjects.getTrackedObjects());
@@ -49,12 +51,9 @@ public class FusionSlamService extends MicroService {
         });
 
         subscribeEvent(PoseEvent.class, (PoseEvent pose) -> {
-            System.out.println("Received PoseEvent ------------------------------------------------------------------------------------------------------------------");
             synchronized (lock) {
                 fusionSlam.addPose(pose.getPose());
                 poseReceived = true;
-                System.out.println("Booleans status is: " + trackedObjectsReceived + " " + poseReceived);
-
                 if (trackedObjectsReceived) {
                     if (lastTrackedObjectsEvent != null) {
                         fusionSlam.addLandmarksFromTrackedObjects(lastTrackedObjectsEvent.getTrackedObjects());
@@ -69,7 +68,14 @@ public class FusionSlamService extends MicroService {
         });
 
         subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast terminate) -> {
+            terminate();
             fusionSlam.terminate();
+        });
+        subscribeEvent(FinishedData.class, (FinishedData finishedData) -> {
+            AtomicBoolean allFinished = fusionSlam.MicroServiceFinished(finishedData.getMicroService());
+            if (allFinished.get()) {
+                sendBroadcast(new TerminatedBroadcast());
+            }
         });
     }
 

@@ -36,7 +36,6 @@ public class CameraService extends MicroService {
                     if (!error) {
                         DetectedObjectsEvent detectedObjectsEvent = new DetectedObjectsEvent(detectedObjects);
                         sendEvent(detectedObjectsEvent);
-                        this.printDetectedObjects(detectedObjects);
                     }
                     else {
                         System.out.println(camera.fullName() + " Caused an error");

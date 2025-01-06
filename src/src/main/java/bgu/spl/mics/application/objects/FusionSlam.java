@@ -1,7 +1,13 @@
 package main.java.bgu.spl.mics.application.objects;
 
+import main.java.bgu.spl.mics.MicroService;
+import main.java.bgu.spl.mics.application.messages.events.FinishedData;
+
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -16,10 +22,27 @@ public class FusionSlam {
     // Poses: List of type Pose – Represents previous Poses needed for calculations.
     private final List<LandMark> landmarks = new CopyOnWriteArrayList<>();
     private final List<Pose> poses = new CopyOnWriteArrayList<>();
+    private static final HashMap<String, AtomicBoolean> finishedServices = new HashMap<>();
+
+    private static boolean isInitialized = false; // Tracks whether the method was called
+    private STATUS status = STATUS.UP;
 
     private FusionSlam() {}
 
     public static FusionSlam getInstance() {
+        return FusionSlamHolder.instance;
+    }
+
+    public static synchronized FusionSlam getInstance(List<String> services) {
+        if (isInitialized) {
+            throw new IllegalStateException("FusionSlam has already been initialized with services.");
+        }
+        synchronized (finishedServices) {
+            for (String service : services) {
+                finishedServices.putIfAbsent(service, new AtomicBoolean(false));
+            }
+        }
+        isInitialized = true; // Mark as initialized
         return FusionSlamHolder.instance;
     }
 
@@ -69,11 +92,29 @@ public class FusionSlam {
     }
 
     public void crash() {
-        // TODO Implement this
+
     }
 
     public void terminate() {
-        // TODO Implement this
+        status = STATUS.DOWN;
+    }
+
+    public AtomicBoolean MicroServiceFinished(String microService) {
+        System.out.println("MicroService " + microService + " finished*********************************************************");
+        AtomicBoolean allFinished = new AtomicBoolean(true);
+        AtomicInteger counter = new AtomicInteger(0);
+        synchronized (finishedServices) {
+            finishedServices.get(microService).set(true);
+            for (String service : finishedServices.keySet()) {
+                if (!finishedServices.get(service).get()) {
+                    counter = new AtomicInteger(counter.get() + 1);
+                }
+                if (counter.get() > 1) { // means that more than only the time service is not finished
+                    allFinished.set(false);
+                }
+            }
+        }
+        return allFinished;
     }
 
     private static class FusionSlamHolder {
@@ -111,4 +152,6 @@ public class FusionSlam {
 
         return globalCloudPoints;
     }
+
+
 }

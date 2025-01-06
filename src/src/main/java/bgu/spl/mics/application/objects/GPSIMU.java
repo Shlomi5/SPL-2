@@ -21,19 +21,12 @@ public class GPSIMU {
     public GPSIMU(GPSIMUDatabase gpsimuDatabase) {
         this.poseTillNow = new CopyOnWriteArrayList<>();
         this.gpsimuDatabase = gpsimuDatabase;
-        this.currentTick = new AtomicInteger(0);
         this.status = STATUS.UP;
     }
 
     public void addCurrentPose(int time) {
-        for (Pose pose : poseTillNow) {
-            if(pose.getTime() == time) {
-                return;
-            }
-        }
-        Pose curr = gpsimuDatabase.getPoseList().get(time);
+        Pose curr = gpsimuDatabase.getPoseList().get(time - 1);
         poseTillNow.add(curr);
-        this.currentTick = new AtomicInteger(currentTick.incrementAndGet());
     }
 
     public Pose getCurrentPose() {
@@ -46,6 +39,10 @@ public class GPSIMU {
 
     public void terminate() {
         //TODO
+    }
+
+    public AtomicInteger getMaxTick() {
+        return new AtomicInteger(gpsimuDatabase.getPoseList().size());
     }
 
 

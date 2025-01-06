@@ -9,13 +9,14 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import main.java.bgu.spl.mics.application.services.*;
 
 public class ConfigParser {
 
-    private String configFilePath;
+    private final String configFilePath;
 
     public ConfigParser(String configFilePath) {
         this.configFilePath = configFilePath;
@@ -44,16 +45,19 @@ public class ConfigParser {
             TimeService timeService = parseTimeService(config);
             services.add(timeService);
 
-            System.out.println("Parsing FusionSlam...");
-            FusionSlam fusionSlam = FusionSlam.getInstance();
-            FusionSlamService fusionSlamService = new FusionSlamService(fusionSlam);
-            services.add(fusionSlamService);
-
             System.out.println("Parsing GPSIMU...");
             GPSIMUDatabase gpsimuDatabase = GPSIMUDatabase.getInstance(folder + config.get("poseJsonFile").getAsString());
             GPSIMU gpsimu = new GPSIMU(gpsimuDatabase);
             PoseService poseService = new PoseService(gpsimu);
             services.add(poseService);
+
+
+            System.out.println("Parsing FusionSlam...");
+            List<String> servicesNames = new CopyOnWriteArrayList<>();
+            services.forEach(service -> servicesNames.add(service.getClass().getSimpleName()));
+            FusionSlam fusionSlam = FusionSlam.getInstance(servicesNames);
+            FusionSlamService fusionSlamService = new FusionSlamService(fusionSlam);
+            services.add(fusionSlamService);
 
             return services;
 
