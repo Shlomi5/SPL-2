@@ -63,17 +63,36 @@ public class LiDarWorkerTracker {
         int timeStamp = stampedDetectedObjects.getTimestamp();
         List<DetectedObject> detectedObjects = stampedDetectedObjects.getDetectedObjects();
 
-        for (DetectedObject detectedObject : detectedObjects) {
+        List<StampedCloudPoints> cloudPointsInRange = generateCloudPointsInRange(timeStamp);
+
+
+        /*for (DetectedObject detectedObject : detectedObjects) {
             TrackedObject trackedObject = dataBase.getTrackedObject(detectedObject, timeStamp);
             System.out.println("LiDarWorkerTracker " + id + " detected object: " + trackedObject);
             if (trackedObject != null){
                 trackedObjects.add(trackedObject);
                 StatisticalFolder.getInstance().incrementNumTrackedObjects(1);
             }
+        }*/
 
+        for (StampedCloudPoints stampedCloudPoints : cloudPointsInRange) {
+            if (stampedCloudPoints.isRead()) {
+                continue;
+            }
+            if (stampedCloudPoints.getId().equals( "ERROR")){
+                crash();
+                return null;
+            }
+            for (DetectedObject detectedObject : detectedObjects) {
+                if (stampedCloudPoints.getId().equals(detectedObject.getId())) {
+                    TrackedObject trackedObject = new TrackedObject(detectedObject.getId(), timeStamp, detectedObject.getDescription(), stampedCloudPoints.getCloudPoints());
+                    trackedObjects.add(trackedObject);
+                }
+            }
         }
 
         lastTrackedObjects = trackedObjects;
+        StatisticalFolder.getInstance().incrementNumTrackedObjects(trackedObjects.size());
         return trackedObjects;
 
 
@@ -81,4 +100,23 @@ public class LiDarWorkerTracker {
 
 
 
+
+
+
+    private List<StampedCloudPoints> generateCloudPointsInRange(int timeStamp) {
+        int startTime = Math.max(0, timeStamp - frequency.get() + 1);
+        List<StampedCloudPoints> cloudPointsInRange = new ArrayList<>();
+        for (StampedCloudPoints stampedCloudPoints : dataBase.getCloudPoints()) {
+            if (stampedCloudPoints.getTimestamp() >= startTime && stampedCloudPoints.getTimestamp() <= timeStamp) {
+                cloudPointsInRange.add(stampedCloudPoints);
+            }
+        }
+
+        return cloudPointsInRange;
+    }
+
+
+    public int getLastTime() {
+        return dataBase.getLastTime();
+    }
 }

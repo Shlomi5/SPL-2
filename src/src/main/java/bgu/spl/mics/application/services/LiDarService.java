@@ -8,11 +8,13 @@ import main.java.bgu.spl.mics.application.messages.events.DetectedObjectsEvent;
 import main.java.bgu.spl.mics.application.messages.events.TrackedObjectsEvent;
 import main.java.bgu.spl.mics.application.objects.Error;
 import main.java.bgu.spl.mics.application.objects.LiDarWorkerTracker;
+import main.java.bgu.spl.mics.application.objects.STATUS;
 import main.java.bgu.spl.mics.application.objects.TrackedObject;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * LiDarService is responsible for processing data from the LiDAR sensor and
@@ -28,6 +30,9 @@ public class LiDarService extends MicroService {
     private final LiDarWorkerTracker LiDarWorkerTracker;
     private ConcurrentLinkedQueue<DetectedObjectsEvent> detectedObjectsEvents;
 
+    private final int OVER_TIME;
+    private boolean isOver = false;
+
     /**
      * Constructor for LiDarService.
      *
@@ -36,6 +41,7 @@ public class LiDarService extends MicroService {
     public LiDarService(LiDarWorkerTracker LiDarWorkerTracker) {
         super("LidarService " + LiDarWorkerTracker.getId());
         this.LiDarWorkerTracker = LiDarWorkerTracker;
+        this.OVER_TIME = LiDarWorkerTracker.getLastTime();
         detectedObjectsEvents = new ConcurrentLinkedQueue<>();
     }
 
@@ -52,6 +58,13 @@ public class LiDarService extends MicroService {
         });
 
         subscribeBroadcast(TickBroadcast.class, (tick) -> {
+
+            if (tick.getTime() > OVER_TIME && !isOver) {
+                System.out.println(getName() + " is over");
+                isOver = true;
+                return;
+            }
+
             if (tick.getTime() % LiDarWorkerTracker.getFrequency() == 0) {
                 List<TrackedObject> allTrackedObjects = new CopyOnWriteArrayList<>();
                 while (!detectedObjectsEvents.isEmpty()) {
@@ -59,18 +72,14 @@ public class LiDarService extends MicroService {
                     System.out.println(getName() + " Working on DetectedObjectsEvents");
                     DetectedObjectsEvent detectedObjectsEvent = detectedObjectsEvents.poll();
                     List<TrackedObject> trackedObjects = LiDarWorkerTracker.processDetectedObjectsEvent(detectedObjectsEvent);
-                    boolean error = checkForError(trackedObjects);
-                    if (error) {
+                    if (LiDarWorkerTracker.getStatus().equals(STATUS.ERROR)) {
+                        sendBroadcast(new CrashedBroadcast(new Error(LiDarWorkerTracker.fullName(), "LiDarWorkerTracker caused an error", new AtomicInteger(detectedObjectsEvent.getStampedDetectedObjects().getTimestamp()))));
                         System.out.println("LiDar " + LiDarWorkerTracker.getId() + " Caused an error");
                         return;
                     }
                     else{
                         allTrackedObjects.addAll(trackedObjects);
                     }
-
-                    /*for (TrackedObject trackedObject : trackedObjects) {
-                        System.out.println(trackedObject);
-                    }*/
 
                 }
 
@@ -90,7 +99,7 @@ public class LiDarService extends MicroService {
         this.subscribeBroadcast(CrashedBroadcast.class, (broadcast) -> {
 
             broadcast.getError().addLidarFrame(LiDarWorkerTracker.fullName(), LiDarWorkerTracker.getLastTrackedObjects());
-            System.out.println(getName() + " crashed");
+            System.out.println(LiDarWorkerTracker.fullName() + " crashed");
             LiDarWorkerTracker.crash();
             this.terminate();
         });
@@ -98,16 +107,6 @@ public class LiDarService extends MicroService {
 
     }
 
-    private boolean checkForError(List<TrackedObject> trackedObjects) {
-        for (TrackedObject obj : trackedObjects) {
-            if (obj.getId().equals("ERROR")) {
-                Error error = new Error(LiDarWorkerTracker.fullName(), "LidarWorkerTracker caused an error");
-                sendBroadcast(new CrashedBroadcast(error));
-                return true;
-            }
-        }
-        return false;
-    }
 
 
 }

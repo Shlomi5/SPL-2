@@ -5,6 +5,7 @@ import main.java.bgu.spl.mics.MessageBusImpl;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.SortedMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -14,6 +15,14 @@ import java.util.concurrent.atomic.AtomicInteger;
  * the number of objects detected and tracked, and the number of landmarks identified.
  */
 public class StatisticalFolder {
+
+    public static void setTimeStamp(int timeStamp) {
+        SingletonHolder.instance.systemRuntime.set(timeStamp);
+    }
+
+    public void addDetectedObjects(int size) {
+        numDetectedObjects.addAndGet(size);
+    }
 
     private static class SingletonHolder {
         private static final StatisticalFolder instance = new StatisticalFolder();
@@ -36,22 +45,7 @@ public class StatisticalFolder {
         this.landmarks = new CopyOnWriteArrayList<>();
     }
 
-    // Getters
-    public int getSystemRuntime() {
-        return systemRuntime.get();
-    }
 
-    public int getNumDetectedObjects() {
-        return numDetectedObjects.get();
-    }
-
-    public int getNumTrackedObjects() {
-        return numTrackedObjects.get();
-    }
-
-    public List<LandMark> getLandmarks() {
-        return landmarks;
-    }
 
     // Update Methods
     public void incrementSystemRuntime(int ticks) {

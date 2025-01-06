@@ -1,17 +1,24 @@
 package main.java.bgu.spl.mics.application.objects;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Error {
-    private String faultySensor;
-    private String error;
-    private LastFrames lastFrames;
+    private final String faultySensor;
+    private final String error;
+    private final AtomicInteger timeStamp;
+    private final LastFrames lastFrames;
     private List<Pose> poses;
 
-    public Error(String faultySensor,String error){
+    public Error(String faultySensor,String error, AtomicInteger timeStamp) {
         this.faultySensor = faultySensor;
         this.error = error;
+        this.timeStamp = timeStamp;
         lastFrames = new LastFrames();
+    }
+
+    public int getTimeStamp() {
+        return timeStamp.get();
     }
 
     public void addCameraFrame(String cameraId, StampedDetectedObjects frame) {
@@ -30,13 +37,11 @@ public class Error {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Error{faultySensor='").append(faultySensor).append('\'')
-                .append(", error='").append(error).append('\'')
-                .append(", lastFrames=").append(lastFrames)
-                .append(", poses=").append(poses)
-                .append('}');
-        return sb.toString();
+        return "Error{faultySensor='" + faultySensor + '\'' +
+                ", error='" + error + '\'' +
+                ", lastFrames=" + lastFrames +
+                ", poses=" + poses +
+                '}';
     }
 
 

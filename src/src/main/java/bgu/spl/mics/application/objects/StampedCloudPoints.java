@@ -10,18 +10,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class StampedCloudPoints {
 
         private AtomicBoolean wasRead;
-        private final long timestamp;
+        private final int timestamp;
         private final String id;
         private final List<CloudPoint> cloudPoints;
 
-        public StampedCloudPoints(long timestamp, String id, List<CloudPoint> cloudPoints) {
+        public StampedCloudPoints(int timestamp, String id, List<CloudPoint> cloudPoints) {
             this.wasRead = new AtomicBoolean(false);
             this.timestamp = timestamp;
             this.id = id;
             this.cloudPoints = cloudPoints;
         }
 
-        public long getTimestamp() {
+        public int getTimestamp() {
             return timestamp;
         }
 

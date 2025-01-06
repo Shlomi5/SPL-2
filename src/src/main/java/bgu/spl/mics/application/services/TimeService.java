@@ -40,6 +40,7 @@ public class TimeService extends MicroService {
         subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast c) -> {
             System.out.println("TimeService Crashed");
             System.out.println(c.getError());
+            StatisticalFolder.setTimeStamp(c.getError().getTimeStamp());
             System.out.println("Statistics: " + StatisticalFolder.getInstance());
             System.out.println("Statistics Json: " + StatisticalFolder.getInstance().createJson());
             terminate();
@@ -61,8 +62,11 @@ public class TimeService extends MicroService {
             System.out.println("TimeService: " + counter);
             sendBroadcast(new TickBroadcast(counter));
             counter = new AtomicInteger(counter.get() + 1);
+
+
+
             StatisticalFolder.getInstance().incrementSystemRuntime(1);
-            if (counter.get() >= duration.get()) {
+            if (counter.get() > duration.get()) {
                 sendBroadcast(new TerminatedBroadcast());
             }
         });

@@ -1,11 +1,9 @@
 package main.java.bgu.spl.mics.application.objects;
 
 import com.google.gson.*;
-import com.google.gson.reflect.TypeToken;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
