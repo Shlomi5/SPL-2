@@ -5,6 +5,7 @@ import main.java.bgu.spl.mics.MicroService;
 import main.java.bgu.spl.mics.application.messages.broadcasts.CrashedBroadcast;
 import main.java.bgu.spl.mics.application.messages.broadcasts.TerminatedBroadcast;
 import main.java.bgu.spl.mics.application.messages.broadcasts.TickBroadcast;
+import main.java.bgu.spl.mics.application.messages.events.FinishedData;
 import main.java.bgu.spl.mics.application.messages.events.PoseEvent;
 import main.java.bgu.spl.mics.application.objects.GPSIMU;
 
@@ -34,13 +35,18 @@ public class PoseService extends MicroService {
     @Override
     protected void initialize() {
         subscribeBroadcast(TickBroadcast.class, (TickBroadcast tick) -> {
-            System.out.println("PoseService received TickBroadcast at time " + tick.getTime());
             synchronized (gpsimu) {
-                gpsimu.addCurrentPose(tick.getTime());
-                PoseEvent poseEvent = new PoseEvent(gpsimu.getCurrentPose());
-                System.out.println("PoseService sending PoseEvent" + poseEvent.getPose() + " at time " + tick.getTime() + "************************************************************************");
-                sendEvent(poseEvent);
-                printMe();
+                if (tick.getTime() >= gpsimu.getMaxTick().get()) {
+                    sendEvent(new FinishedData(this.getName()));
+                    gpsimu.terminate();
+                    terminate();
+                }
+                else {
+                    gpsimu.addCurrentPose(tick.getTime());
+                    PoseEvent poseEvent = new PoseEvent(gpsimu.getCurrentPose());
+                    sendEvent(poseEvent);
+                    printMe();
+                }
             }
         });
         subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast crash) -> {
@@ -53,6 +59,7 @@ public class PoseService extends MicroService {
         subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast terminate) -> {
 
             gpsimu.terminate();
+            terminate();
         });
     }
 

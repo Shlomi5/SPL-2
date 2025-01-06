@@ -9,13 +9,18 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import main.java.bgu.spl.mics.application.services.*;
 
 public class ConfigParser {
 
-    
+    private final String configFilePath;
+
+    public ConfigParser(String configFilePath) {
+        this.configFilePath = configFilePath;
+    }
 
     public static List<Runnable> ParseConfigFile(String folder,String configFilePath) {
         folder = folder + "/";
@@ -40,16 +45,19 @@ public class ConfigParser {
             TimeService timeService = parseTimeService(config);
             services.add(timeService);
 
-            System.out.println("Parsing FusionSlam...");
-            FusionSlam fusionSlam = FusionSlam.getInstance();
-            FusionSlamService fusionSlamService = new FusionSlamService(fusionSlam);
-            services.add(fusionSlamService);
-
             System.out.println("Parsing GPSIMU...");
             GPSIMUDatabase gpsimuDatabase = GPSIMUDatabase.getInstance(folder + config.get("poseJsonFile").getAsString());
             GPSIMU gpsimu = new GPSIMU(gpsimuDatabase);
             PoseService poseService = new PoseService(gpsimu);
             services.add(poseService);
+
+
+            System.out.println("Parsing FusionSlam...");
+            List<String> servicesNames = new CopyOnWriteArrayList<>();
+            services.forEach(service -> servicesNames.add(service.getClass().getSimpleName()));
+            FusionSlam fusionSlam = FusionSlam.getInstance(servicesNames);
+            FusionSlamService fusionSlamService = new FusionSlamService(fusionSlam);
+            services.add(fusionSlamService);
 
             return services;
 
@@ -68,27 +76,22 @@ public class ConfigParser {
         String cameraDataPath = camerasSection.get("camera_datas_path").getAsString();
 
         for (JsonElement element : camerasConfigurations) {
-            Camera camera = getCamera(folder, element, cameraDataPath);
+            JsonObject cameraConfig = element.getAsJsonObject();
+            AtomicInteger id = new AtomicInteger(cameraConfig.get("id").getAsInt());
+            AtomicInteger frequency = new AtomicInteger(cameraConfig.get("frequency").getAsInt());
+
+            // Check FREQ = 0
+            if (frequency.get() == 0) {
+              frequency.set(1);
+            }
+            String cameraKey = cameraConfig.get("camera_key").getAsString();
+
+            Camera camera = new Camera(id, frequency, cameraKey);
+            camera.loadDataBase(folder + cameraDataPath);
             cameras.add(camera);
         }
 
         return cameras;
-    }
-
-    private static Camera getCamera(String folder, JsonElement element, String cameraDataPath) {
-        JsonObject cameraConfig = element.getAsJsonObject();
-        AtomicInteger id = new AtomicInteger(cameraConfig.get("id").getAsInt());
-        AtomicInteger frequency = new AtomicInteger(cameraConfig.get("frequency").getAsInt());
-
-        // Check FREQ = 0
-        if (frequency.get() == 0) {
-          frequency.set(1);
-        }
-        String cameraKey = cameraConfig.get("camera_key").getAsString();
-
-        Camera camera = new Camera(id, frequency, cameraKey);
-        camera.loadDataBase(folder + cameraDataPath);
-        return camera;
     }
 
     public static List<LiDarWorkerTracker> parseLidarWorkers(String folder ,JsonObject config) {

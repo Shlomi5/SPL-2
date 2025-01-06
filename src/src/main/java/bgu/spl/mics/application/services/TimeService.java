@@ -73,6 +73,7 @@ public class TimeService extends MicroService {
         });
         if (counter.get() < duration.get()) {
             sendBroadcast(new TickBroadcast(counter));
+            counter = new AtomicInteger(counter.get() + 1);
         }
         else {
             sendBroadcast(new TerminatedBroadcast());

@@ -14,8 +14,4 @@ public class ExampleEvent implements Event<String>{
         return senderName;
     }
 
-    @Override
-    public void setFuture() {
-        // TODO Auto-generated method stub
-    }
 }

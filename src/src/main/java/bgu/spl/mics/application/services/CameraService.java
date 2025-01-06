@@ -50,7 +50,6 @@ public class CameraService extends MicroService {
                     else {
                         DetectedObjectsEvent detectedObjectsEvent = new DetectedObjectsEvent(detectedObjects);
                         sendEvent(detectedObjectsEvent);
-                        this.printDetectedObjects(detectedObjects);
                     }
                 }
 
