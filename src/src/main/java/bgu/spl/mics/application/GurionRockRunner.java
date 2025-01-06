@@ -1,6 +1,7 @@
 package main.java.bgu.spl.mics.application;
 
 
+import main.java.bgu.spl.mics.MicroService;
 import main.java.bgu.spl.mics.application.objects.*;
 import main.java.bgu.spl.mics.application.services.CameraService;
 import main.java.bgu.spl.mics.application.services.FusionSlamService;
@@ -31,7 +32,7 @@ public class GurionRockRunner {
     public static void main(String[] args) throws FileNotFoundException {
 
 
-        List<Runnable> services = ConfigParser.ParseConfigFile("example_input" ,"configuration_file.json");
+        List<MicroService> services = ConfigParser.ParseConfigFile("example_input" ,"configuration_file.json");
         for (Runnable service : services) {
             Thread thread = new Thread(service);
             thread.start();

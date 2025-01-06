@@ -13,7 +13,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Provides information about the robot's position and movement.
  */
 public class GPSIMU {
-    private AtomicInteger currentTick;
     private STATUS status;
     private final List<Pose> poseTillNow;
     private final GPSIMUDatabase gpsimuDatabase;
@@ -25,7 +24,7 @@ public class GPSIMU {
     }
 
     public void addCurrentPose(int time) {
-        Pose curr = gpsimuDatabase.getPoseList().get(time - 1);
+        Pose curr = gpsimuDatabase.getPoseList().get(time);
         poseTillNow.add(curr);
     }
 

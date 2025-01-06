@@ -24,6 +24,24 @@ public class StatisticalFolder {
         numDetectedObjects.addAndGet(size);
     }
 
+    public LandMark getLandmark(String id) {
+        for (LandMark landmark : landmarks) {
+            if (landmark.getId().equals(id)) {
+                return landmark;
+            }
+        }
+        return null;
+    }
+
+    public void removeLandmark(String id) {
+        for (LandMark landmark : landmarks) {
+            if (landmark.getId().equals(id)) {
+                landmarks.remove(landmark);
+                return;
+            }
+        }
+    }
+
     private static class SingletonHolder {
         private static final StatisticalFolder instance = new StatisticalFolder();
     }
@@ -62,7 +80,6 @@ public class StatisticalFolder {
 
     public void addLandmark(LandMark landmark) {
         landmarks.add(landmark);
-        System.out.println("Landmark added: " + landmark);
     }
 
     @Override
