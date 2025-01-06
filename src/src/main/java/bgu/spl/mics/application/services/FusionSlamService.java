@@ -66,10 +66,15 @@ public class FusionSlamService extends MicroService {
 
         subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast crash) -> {
             fusionSlam.crash();
+            System.out.println("FusionSlam crashed");
+            this.terminate();
+
         });
 
         subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast terminate) -> {
+            System.out.println("FusionSlam terminated");
             fusionSlam.terminate();
+            this.terminate();
         });
     }
 

@@ -66,7 +66,7 @@ public class TimeService extends MicroService {
 
 
             StatisticalFolder.getInstance().incrementSystemRuntime(1);
-            if (counter.get() >= duration.get()) {
+            if (counter.get() > duration.get()) {
                 sendBroadcast(new TerminatedBroadcast());
             }
         });

@@ -16,6 +16,7 @@ import main.java.bgu.spl.mics.application.objects.GPSIMU;
 public class PoseService extends MicroService {
 
     final GPSIMU gpsimu;
+
     /**
      * Constructor for PoseService.
      *
@@ -43,9 +44,14 @@ public class PoseService extends MicroService {
             }
         });
         subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast crash) -> {
+            crash.getError().setPoses(gpsimu.getPoses());
             gpsimu.crash();
+            System.out.println("GPSIMU" + " crashed");
+            this.terminate();
+
         });
         subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast terminate) -> {
+
             gpsimu.terminate();
         });
     }

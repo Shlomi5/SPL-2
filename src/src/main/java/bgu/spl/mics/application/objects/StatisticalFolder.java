@@ -20,6 +20,10 @@ public class StatisticalFolder {
         SingletonHolder.instance.systemRuntime.set(timeStamp);
     }
 
+    public void addDetectedObjects(int size) {
+        numDetectedObjects.addAndGet(size);
+    }
+
     private static class SingletonHolder {
         private static final StatisticalFolder instance = new StatisticalFolder();
     }
@@ -41,22 +45,7 @@ public class StatisticalFolder {
         this.landmarks = new CopyOnWriteArrayList<>();
     }
 
-    // Getters
-    public int getSystemRuntime() {
-        return systemRuntime.get();
-    }
 
-    public int getNumDetectedObjects() {
-        return numDetectedObjects.get();
-    }
-
-    public int getNumTrackedObjects() {
-        return numTrackedObjects.get();
-    }
-
-    public List<LandMark> getLandmarks() {
-        return landmarks;
-    }
 
     // Update Methods
     public void incrementSystemRuntime(int ticks) {

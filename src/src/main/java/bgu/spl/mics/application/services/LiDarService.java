@@ -100,7 +100,7 @@ public class LiDarService extends MicroService {
         this.subscribeBroadcast(CrashedBroadcast.class, (broadcast) -> {
 
             broadcast.getError().addLidarFrame(LiDarWorkerTracker.fullName(), LiDarWorkerTracker.getLastTrackedObjects());
-            System.out.println(getName() + " crashed");
+            System.out.println(LiDarWorkerTracker.fullName() + " crashed");
             LiDarWorkerTracker.crash();
             this.terminate();
         });

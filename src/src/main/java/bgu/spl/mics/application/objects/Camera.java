@@ -1,14 +1,5 @@
 package main.java.bgu.spl.mics.application.objects;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.reflect.TypeToken;
-
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.lang.reflect.Type;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -18,9 +9,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Responsible for detecting objects in the environment.
  */
 public class Camera {
-    private AtomicInteger id;
-    private AtomicInteger frequency;
-    private String cameraKey;
+    private final AtomicInteger id;
+    private final AtomicInteger frequency;
+    private final String cameraKey;
     private STATUS status;
     private List<StampedDetectedObjects> cameraData;
     private StampedDetectedObjects lastStampedDetectedObjects;
@@ -77,16 +68,26 @@ public class Camera {
 
     public StampedDetectedObjects checkAndDetectObjects(int time) {
         List<DetectedObject> detectedObjects = getDetectedObjects(time);
-        if (!detectedObjects.isEmpty()){
-            StampedDetectedObjects stampedDetectedObjects = new StampedDetectedObjects(new AtomicInteger(time),detectedObjects);
-            if (!containsError(detectedObjects)){
-                lastStampedDetectedObjects = stampedDetectedObjects;
-            }
-            return stampedDetectedObjects;
-        }
-        else{
+        if (detectedObjects.isEmpty()) {
             return null;
         }
+        else{
+            StampedDetectedObjects stampedDetectedObjects = new StampedDetectedObjects(new AtomicInteger(time),detectedObjects);
+            DetectedObject errorDetectedObject = containsError(detectedObjects);
+            if (errorDetectedObject != null){
+                crash();
+                List<DetectedObject> errorDetectedObjectList = new CopyOnWriteArrayList<>();
+                errorDetectedObjectList.add(errorDetectedObject);
+                return new StampedDetectedObjects(new AtomicInteger(time),errorDetectedObjectList);
+            }
+            else {
+                lastStampedDetectedObjects = stampedDetectedObjects;
+                StatisticalFolder.getInstance().incrementNumDetectedObjects(detectedObjects.size());
+                return stampedDetectedObjects;
+            }
+
+        }
+
     }
 
     private List<DetectedObject> getDetectedObjects(int time) {
@@ -102,21 +103,21 @@ public class Camera {
         return detectedObjects;
     }
 
-    private boolean containsError(List<DetectedObject> detectedObjects) {
+    private DetectedObject containsError(List<DetectedObject> detectedObjects) {
         for (DetectedObject detectedObject : detectedObjects){
             if (detectedObject.getId().equals("ERROR")){
-                return true;
+                return detectedObject;
             }
         }
-        return false;
-    }
-
-    public STATUS getStatus() {
-        return status;
+        return null;
     }
 
 
     public int getLastTime() {
         return lastTime;
+    }
+
+    public boolean crashed() {
+        return status == STATUS.ERROR;
     }
 }

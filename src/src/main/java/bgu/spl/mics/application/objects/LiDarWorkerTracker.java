@@ -87,12 +87,12 @@ public class LiDarWorkerTracker {
                 if (stampedCloudPoints.getId().equals(detectedObject.getId())) {
                     TrackedObject trackedObject = new TrackedObject(detectedObject.getId(), timeStamp, detectedObject.getDescription(), stampedCloudPoints.getCloudPoints());
                     trackedObjects.add(trackedObject);
-                    StatisticalFolder.getInstance().incrementNumTrackedObjects(1);
                 }
             }
         }
 
         lastTrackedObjects = trackedObjects;
+        StatisticalFolder.getInstance().incrementNumTrackedObjects(trackedObjects.size());
         return trackedObjects;
 
 

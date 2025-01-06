@@ -15,11 +15,7 @@ import main.java.bgu.spl.mics.application.services.*;
 
 public class ConfigParser {
 
-    private String configFilePath;
-
-    public ConfigParser(String configFilePath) {
-        this.configFilePath = configFilePath;
-    }
+    
 
     public static List<Runnable> ParseConfigFile(String folder,String configFilePath) {
         folder = folder + "/";
@@ -72,22 +68,27 @@ public class ConfigParser {
         String cameraDataPath = camerasSection.get("camera_datas_path").getAsString();
 
         for (JsonElement element : camerasConfigurations) {
-            JsonObject cameraConfig = element.getAsJsonObject();
-            AtomicInteger id = new AtomicInteger(cameraConfig.get("id").getAsInt());
-            AtomicInteger frequency = new AtomicInteger(cameraConfig.get("frequency").getAsInt());
-
-            // Check FREQ = 0
-            if (frequency.get() == 0) {
-              frequency.set(1);
-            }
-            String cameraKey = cameraConfig.get("camera_key").getAsString();
-
-            Camera camera = new Camera(id, frequency, cameraKey);
-            camera.loadDataBase(folder + cameraDataPath);
+            Camera camera = getCamera(folder, element, cameraDataPath);
             cameras.add(camera);
         }
 
         return cameras;
+    }
+
+    private static Camera getCamera(String folder, JsonElement element, String cameraDataPath) {
+        JsonObject cameraConfig = element.getAsJsonObject();
+        AtomicInteger id = new AtomicInteger(cameraConfig.get("id").getAsInt());
+        AtomicInteger frequency = new AtomicInteger(cameraConfig.get("frequency").getAsInt());
+
+        // Check FREQ = 0
+        if (frequency.get() == 0) {
+          frequency.set(1);
+        }
+        String cameraKey = cameraConfig.get("camera_key").getAsString();
+
+        Camera camera = new Camera(id, frequency, cameraKey);
+        camera.loadDataBase(folder + cameraDataPath);
+        return camera;
     }
 
     public static List<LiDarWorkerTracker> parseLidarWorkers(String folder ,JsonObject config) {

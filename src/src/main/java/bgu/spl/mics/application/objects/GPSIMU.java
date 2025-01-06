@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class GPSIMU {
     private AtomicInteger currentTick;
-    private final STATUS status;
+    private STATUS status;
     private final List<Pose> poseTillNow;
     private final GPSIMUDatabase gpsimuDatabase;
 
@@ -41,14 +41,18 @@ public class GPSIMU {
     }
 
     public void crash() {
-        //TODO
+        status = STATUS.ERROR;
     }
 
     public void terminate() {
-        //TODO
+        status = STATUS.DOWN;
+
     }
 
 
+    public List<Pose> getPoses() {
+        return poseTillNow;
+    }
 }
 
 
