@@ -3,6 +3,7 @@ package main.java.bgu.spl.mics.application.objects;
 import main.java.bgu.spl.mics.MicroService;
 import main.java.bgu.spl.mics.application.messages.events.FinishedData;
 
+import javax.print.attribute.standard.PrinterURI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -39,6 +40,7 @@ public class FusionSlam {
         }
         synchronized (finishedServices) {
             for (String service : services) {
+                System.out.println("Adding service: " + service);
                 finishedServices.putIfAbsent(service, new AtomicBoolean(false));
             }
         }
@@ -84,7 +86,6 @@ public class FusionSlam {
                 StatisticalFolder.getInstance().addLandmark(newLandmark);
             }
         }
-        System.out.println("Landmarks Till Now: " + landmarks);
     }
 
     public void addPose(Pose newPose) {

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import main.java.bgu.spl.mics.MicroService;
 import main.java.bgu.spl.mics.application.services.*;
 
 public class ConfigParser {
@@ -22,11 +23,15 @@ public class ConfigParser {
         this.configFilePath = configFilePath;
     }
 
-    public static List<Runnable> ParseConfigFile(String folder,String configFilePath) {
+    public static List<MicroService> ParseConfigFile(String folder, String configFilePath) {
         folder = folder + "/";
         try (FileReader reader = new FileReader(folder + configFilePath)) {
             JsonObject config = JsonParser.parseReader(reader).getAsJsonObject();
-            List<Runnable> services = new ArrayList<>();
+            List<MicroService> services = new ArrayList<>();
+
+            System.out.println("Parsing TimeService...");
+            TimeService timeService = parseTimeService(config);
+            services.add(timeService);
 
             System.out.println("Parsing Cameras...");
             List<Camera> cameras = parseCameras(folder,config);
@@ -41,9 +46,6 @@ public class ConfigParser {
                 LiDarService liDarService = new LiDarService(lidarWorker);
                 services.add(liDarService);
             }
-            System.out.println("Parsing TimeService...");
-            TimeService timeService = parseTimeService(config);
-            services.add(timeService);
 
             System.out.println("Parsing GPSIMU...");
             GPSIMUDatabase gpsimuDatabase = GPSIMUDatabase.getInstance(folder + config.get("poseJsonFile").getAsString());
@@ -54,7 +56,7 @@ public class ConfigParser {
 
             System.out.println("Parsing FusionSlam...");
             List<String> servicesNames = new CopyOnWriteArrayList<>();
-            services.forEach(service -> servicesNames.add(service.getClass().getSimpleName()));
+            services.forEach(service -> servicesNames.add(service.getName()));
             FusionSlam fusionSlam = FusionSlam.getInstance(servicesNames);
             FusionSlamService fusionSlamService = new FusionSlamService(fusionSlam);
             services.add(fusionSlamService);
