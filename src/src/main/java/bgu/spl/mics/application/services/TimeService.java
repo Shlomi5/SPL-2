@@ -36,7 +36,6 @@ public class TimeService extends MicroService {
      */
     @Override
     protected void initialize() {
-
         subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast c) -> {
             System.out.println("TimeService Crashed");
             StatisticalFolder.setTimeStamp(c.getError().getTimeStamp());
