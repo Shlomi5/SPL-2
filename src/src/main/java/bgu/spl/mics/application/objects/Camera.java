@@ -72,6 +72,7 @@ public class Camera {
             return null;
         } else {
             StampedDetectedObjects stampedDetectedObjects = new StampedDetectedObjects(new AtomicInteger(time), detectedObjects);
+
             DetectedObject errorDetectedObject = containsError(detectedObjects);
             if (errorDetectedObject != null) {
                 crash();

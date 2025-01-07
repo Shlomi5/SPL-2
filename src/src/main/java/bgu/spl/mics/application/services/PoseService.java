@@ -42,7 +42,6 @@ public class PoseService extends MicroService {
                 }
                 else {
                     gpsimu.addCurrentPose(tick.getTime() - 1);
-                    printMe();
                     PoseEvent poseEvent = new PoseEvent(gpsimu.getCurrentPose());
                     sendEvent(poseEvent);
                 }
@@ -62,12 +61,5 @@ public class PoseService extends MicroService {
         });
     }
 
-    private void printMe() {
-        try {
-            System.out.println("Time: " + gpsimu.getCurrentPose().getTime() + " " + gpsimu.getCurrentPose());
-            System.out.println("Poses Till Now: " + gpsimu.getPoses());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+
 }

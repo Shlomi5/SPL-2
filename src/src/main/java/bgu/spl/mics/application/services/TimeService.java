@@ -68,7 +68,6 @@ public class TimeService extends MicroService {
         });
         if (counter.get() < duration.get()) {
             sendBroadcast(new TickBroadcast(counter));
-            System.out.println("TimeService:============================================= " + counter);
         }
         else {
             sendBroadcast(new TerminatedBroadcast());
