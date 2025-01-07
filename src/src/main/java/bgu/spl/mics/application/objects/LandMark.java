@@ -40,4 +40,5 @@ public class LandMark {
     public List<CloudPoint> getCloudPoints() {
         return coordinates;
     }
+
 }

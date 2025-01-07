@@ -63,7 +63,6 @@ public class LiDarService extends MicroService {
     @Override
     protected void initialize() {
         subscribeEvent(DetectedObjectsEvent.class, (event) -> {
-            System.out.println(getName() + " got DetectedObjectsEvent");
             detectedObjectsEvents.add(event);
         });
 
@@ -79,7 +78,6 @@ public class LiDarService extends MicroService {
                 List<TrackedObject> allTrackedObjects = new CopyOnWriteArrayList<>();
                 while (!detectedObjectsEvents.isEmpty()) {
 
-                    System.out.println(getName() + " Working on DetectedObjectsEvents");
                     DetectedObjectsEvent detectedObjectsEvent = detectedObjectsEvents.poll();
 
                     assert detectedObjectsEvent != null;

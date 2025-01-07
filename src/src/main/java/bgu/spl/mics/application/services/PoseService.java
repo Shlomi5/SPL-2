@@ -36,16 +36,16 @@ public class PoseService extends MicroService {
     protected void initialize() {
         subscribeBroadcast(TickBroadcast.class, (TickBroadcast tick) -> {
             synchronized (gpsimu) {
-                if (tick.getTime() >= gpsimu.getMaxTick().get()) {
+                if (tick.getTime() > gpsimu.getMaxTick().get()) {
                     sendEvent(new FinishedData(this.getName()));
                     gpsimu.terminate();
                     terminate();
                 }
                 else {
-                    gpsimu.addCurrentPose(tick.getTime());
+                    gpsimu.addCurrentPose(tick.getTime() - 1);
+                    printMe();
                     PoseEvent poseEvent = new PoseEvent(gpsimu.getCurrentPose());
                     sendEvent(poseEvent);
-                    printMe();
                 }
             }
         });
@@ -65,8 +65,8 @@ public class PoseService extends MicroService {
 
     private void printMe() {
         try {
-            System.out.println("Time: " + gpsimu.getCurrentPose().getTime());
-            System.out.println("Position: " + gpsimu.getCurrentPose());
+            System.out.println("Time: " + gpsimu.getCurrentPose().getTime() + " " + gpsimu.getCurrentPose());
+            System.out.println("Poses Till Now: " + gpsimu.getPoses());
         } catch (Exception e) {
             e.printStackTrace();
         }

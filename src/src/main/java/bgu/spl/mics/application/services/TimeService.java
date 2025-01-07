@@ -62,19 +62,17 @@ public class TimeService extends MicroService {
                 e.printStackTrace();
             }
             System.out.println("TimeService: " + counter);
-            sendBroadcast(new TickBroadcast(counter));
-            counter = new AtomicInteger(counter.get() + 1);
-
-
-
             StatisticalFolder.getInstance().incrementSystemRuntime(1);
+            counter = new AtomicInteger(counter.get() + 1);
+            sendBroadcast(new TickBroadcast(counter));
+
             if (counter.get() > duration.get()) {
                 sendBroadcast(new TerminatedBroadcast());
             }
         });
         if (counter.get() < duration.get()) {
             sendBroadcast(new TickBroadcast(counter));
-            counter = new AtomicInteger(counter.get() + 1);
+            System.out.println("TimeService:============================================= " + counter);
         }
         else {
             sendBroadcast(new TerminatedBroadcast());

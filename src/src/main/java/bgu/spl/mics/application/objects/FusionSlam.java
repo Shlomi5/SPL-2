@@ -24,6 +24,7 @@ public class FusionSlam {
     private final List<LandMark> landmarks = new CopyOnWriteArrayList<>();
     private final List<Pose> poses = new CopyOnWriteArrayList<>();
     private static final HashMap<String, AtomicBoolean> finishedServices = new HashMap<>();
+    private final Object lock = new Object();
 
     private static boolean isInitialized = false; // Tracks whether the method was called
     private STATUS status = STATUS.UP;
@@ -75,7 +76,8 @@ public class FusionSlam {
                             }
                         }
                     }
-
+                    StatisticalFolder.getInstance().removeLandmark(landmark.getId());
+                    StatisticalFolder.getInstance().addLandmark(landmark);
                     break;
                 }
             }
@@ -123,6 +125,10 @@ public class FusionSlam {
     }
 
     public static List<CloudPoint> transformToGlobalCoordinates(Pose pose, TrackedObject trackedObject) {
+        if (pose == null || trackedObject == null || trackedObject.getCloudPoints() == null) {
+            throw new IllegalArgumentException("Pose or TrackedObject or its CloudPoints cannot be null");
+        }
+
         List<CloudPoint> globalCloudPoints = new CopyOnWriteArrayList<>();
 
         // Extract pose parameters
