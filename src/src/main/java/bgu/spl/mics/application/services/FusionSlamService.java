@@ -1,6 +1,5 @@
 package main.java.bgu.spl.mics.application.services;
 
-import main.java.bgu.spl.mics.MessageBusImpl;
 import main.java.bgu.spl.mics.MicroService;
 import main.java.bgu.spl.mics.application.messages.broadcasts.CrashedBroadcast;
 import main.java.bgu.spl.mics.application.messages.broadcasts.TerminatedBroadcast;
@@ -9,7 +8,6 @@ import main.java.bgu.spl.mics.application.messages.events.PoseEvent;
 import main.java.bgu.spl.mics.application.messages.events.TrackedObjectsEvent;
 import main.java.bgu.spl.mics.application.objects.FusionSlam;
 
-import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**

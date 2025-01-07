@@ -3,15 +3,9 @@ package main.java.bgu.spl.mics.application;
 
 import main.java.bgu.spl.mics.MicroService;
 import main.java.bgu.spl.mics.application.objects.*;
-import main.java.bgu.spl.mics.application.services.CameraService;
-import main.java.bgu.spl.mics.application.services.FusionSlamService;
-import main.java.bgu.spl.mics.application.services.LiDarService;
-import main.java.bgu.spl.mics.application.services.TimeService;
 
 import java.io.FileNotFoundException;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * The main entry point for the GurionRock Pro Max Ultra Over 9000 simulation.
@@ -31,15 +25,17 @@ public class GurionRockRunner {
      */
     public static void main(String[] args) throws FileNotFoundException {
 
+        // Parse configuration file.
+        String path = args[0];
+        String folder = path.substring(0, path.lastIndexOf("/"));
+        String file = path.substring(path.lastIndexOf("/") + 1);
 
-        List<MicroService> services = ConfigParser.ParseConfigFile("example_input" ,"configuration_file.json");
+        List<MicroService> services = ConfigParser.ParseConfigFile(folder ,file);
+        assert services != null;
         for (MicroService service : services) {
             Thread thread = new Thread(service);
             thread.start();
         }
 
-        // TODO: Parse configuration file.
-        // TODO: Initialize system components and services.
-        // TODO: Start the simulation.
     }
 }

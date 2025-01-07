@@ -1,9 +1,4 @@
 package main.java.bgu.spl.mics.application.objects;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import java.io.FileReader;
-import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;

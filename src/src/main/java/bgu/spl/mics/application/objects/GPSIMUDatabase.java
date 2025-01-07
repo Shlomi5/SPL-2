@@ -12,7 +12,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class GPSIMUDatabase {
 
     private List<Pose> poseList;
-    private String path; // Add a field to store the path
 
     private List<Pose> createPoseList(String path) {
 
@@ -48,7 +47,6 @@ public class GPSIMUDatabase {
     public static GPSIMUDatabase getInstance(String path) {
         if (SingletonHolder.instance.poseList == null && path != null) {
             // Set the path only once
-            SingletonHolder.instance.path = path;
             SingletonHolder.instance.poseList = SingletonHolder.instance.createPoseList(path);
         }
         return SingletonHolder.instance;

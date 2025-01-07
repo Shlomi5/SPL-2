@@ -21,7 +21,7 @@ public class Camera {
     private CameraDatabase cameraDatabase;
 
 
-    public Camera(AtomicInteger id, AtomicInteger frequency,String cameraKey) {
+    public Camera(AtomicInteger id, AtomicInteger frequency, String cameraKey) {
         this.id = id;
         this.frequency = frequency;
         this.status = STATUS.UP;
@@ -33,18 +33,18 @@ public class Camera {
         cameraDatabase = CameraDatabase.getInstance(path);
         cameraData = cameraDatabase.getCameraData(cameraKey);
         lastTime = 0;
-        for (StampedDetectedObjects stampedDetectedObjects : cameraData){
-            if (stampedDetectedObjects.getTimestamp() > lastTime){
+        for (StampedDetectedObjects stampedDetectedObjects : cameraData) {
+            if (stampedDetectedObjects.getTimestamp() > lastTime) {
                 lastTime = stampedDetectedObjects.getTimestamp();
             }
         }
     }
 
 
-
     public int getFrequency() {
         return frequency.get();
     }
+
     public int getId() {
         return id.get();
     }
@@ -70,17 +70,15 @@ public class Camera {
         List<DetectedObject> detectedObjects = getDetectedObjects(time);
         if (detectedObjects.isEmpty()) {
             return null;
-        }
-        else{
-            StampedDetectedObjects stampedDetectedObjects = new StampedDetectedObjects(new AtomicInteger(time),detectedObjects);
+        } else {
+            StampedDetectedObjects stampedDetectedObjects = new StampedDetectedObjects(new AtomicInteger(time), detectedObjects);
             DetectedObject errorDetectedObject = containsError(detectedObjects);
-            if (errorDetectedObject != null){
+            if (errorDetectedObject != null) {
                 crash();
                 List<DetectedObject> errorDetectedObjectList = new CopyOnWriteArrayList<>();
                 errorDetectedObjectList.add(errorDetectedObject);
-                return new StampedDetectedObjects(new AtomicInteger(time),errorDetectedObjectList);
-            }
-            else {
+                return new StampedDetectedObjects(new AtomicInteger(time), errorDetectedObjectList);
+            } else {
                 lastStampedDetectedObjects = stampedDetectedObjects;
                 StatisticalFolder.getInstance().incrementNumDetectedObjects(detectedObjects.size());
                 return stampedDetectedObjects;
@@ -94,8 +92,8 @@ public class Camera {
         int frequencyInt = getFrequency();
         int timeOfLastCapture = time - frequencyInt + 1;
         List<DetectedObject> detectedObjects = new CopyOnWriteArrayList<>();
-        for (StampedDetectedObjects stampedObj : cameraData){
-            if ((timeOfLastCapture <= stampedObj.getTimestamp()) && (stampedObj.getTimestamp() <= time)){
+        for (StampedDetectedObjects stampedObj : cameraData) {
+            if ((timeOfLastCapture <= stampedObj.getTimestamp()) && (stampedObj.getTimestamp() <= time)) {
                 List<DetectedObject> newDetectedObjects = stampedObj.getDetectedObjects();
                 detectedObjects.addAll(newDetectedObjects);
             }
@@ -104,8 +102,8 @@ public class Camera {
     }
 
     private DetectedObject containsError(List<DetectedObject> detectedObjects) {
-        for (DetectedObject detectedObject : detectedObjects){
-            if (detectedObject.getId().equals("ERROR")){
+        for (DetectedObject detectedObject : detectedObjects) {
+            if (detectedObject.getId().equals("ERROR")) {
                 return detectedObject;
             }
         }

@@ -78,6 +78,7 @@ public class LiDarWorkerTracker {
             }
             for (DetectedObject detectedObject : detectedObjects) {
                 if (stampedCloudPoints.getId().equals(detectedObject.getId())) {
+                    stampedCloudPoints.markRead();
                     TrackedObject trackedObject = new TrackedObject(detectedObject.getId(), timeStamp, detectedObject.getDescription(), stampedCloudPoints.getCloudPoints());
                     trackedObjects.add(trackedObject);
                 }

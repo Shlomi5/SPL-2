@@ -1,6 +1,5 @@
 package main.java.bgu.spl.mics.application.services;
 
-import main.java.bgu.spl.mics.MessageBusImpl;
 import main.java.bgu.spl.mics.MicroService;
 import main.java.bgu.spl.mics.application.messages.broadcasts.CrashedBroadcast;
 import main.java.bgu.spl.mics.application.messages.broadcasts.TerminatedBroadcast;

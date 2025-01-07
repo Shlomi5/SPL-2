@@ -1,15 +1,10 @@
 package main.java.bgu.spl.mics.application.objects;
 
-import main.java.bgu.spl.mics.MicroService;
-import main.java.bgu.spl.mics.application.messages.events.FinishedData;
-
-import javax.print.attribute.standard.PrinterURI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Manages the fusion of sensor data for simultaneous localization and mapping (SLAM).
@@ -24,7 +19,6 @@ public class FusionSlam {
     private final List<LandMark> landmarks = new CopyOnWriteArrayList<>();
     private final List<Pose> poses = new CopyOnWriteArrayList<>();
     private static final HashMap<String, AtomicBoolean> finishedServices = new HashMap<>();
-    private final Object lock = new Object();
 
     private static boolean isInitialized = false; // Tracks whether the method was called
     private STATUS status = STATUS.UP;

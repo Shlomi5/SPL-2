@@ -1,8 +1,6 @@
 package main.java.bgu.spl.mics.application.objects;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import main.java.bgu.spl.mics.MessageBusImpl;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -11,7 +9,6 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.SortedMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -30,18 +27,8 @@ public class StatisticalFolder {
         SingletonHolder.instance.error = error;
     }
 
-    public void addDetectedObjects(int size) {
-        numDetectedObjects.addAndGet(size);
-    }
 
-    public LandMark getLandmark(String id) {
-        for (LandMark landmark : landmarks) {
-            if (landmark.getId().equals(id)) {
-                return landmark;
-            }
-        }
-        return null;
-    }
+
 
     public void removeLandmark(String id) {
         for (LandMark landmark : landmarks) {
@@ -105,6 +92,10 @@ public class StatisticalFolder {
 
     public String createJson() {
         LinkedHashMap<String, Object> jsonMap = new LinkedHashMap<>(); // Use LinkedHashMap to preserve order
+
+        if (error != null) {
+            jsonMap.put("Error", error);
+        }
         jsonMap.put("systemRuntime", systemRuntime.get());
         jsonMap.put("numDetectedObjects", numDetectedObjects.get());
         jsonMap.put("numTrackedObjects", numTrackedObjects.get());
@@ -120,13 +111,13 @@ public class StatisticalFolder {
         return gson.toJson(jsonMap);
     }
 
-    public static void writeJsonToFile() {
+    public static void writeJsonToFile(String fileName) {
         String jsonData  = SingletonHolder.instance.createJson();
-        String filePath = "output_file.json"; // Fixed file name
-        Path path = Paths.get(filePath);
+        // Fixed file name
+        Path path = Paths.get(fileName);
         try {
             Files.write(path, jsonData.getBytes()); // Create and write to file
-            System.out.println("JSON data written to file: " + filePath);
+            System.out.println("JSON data written to file: " + fileName);
         } catch (IOException e) {
             System.err.println("Error writing JSON to file: " + e.getMessage());
         }

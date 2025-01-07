@@ -52,7 +52,7 @@ public class CameraService extends MicroService {
 
                 if (!(detectedObjects ==null)){
                     if (camera.crashed()){
-                        System.out.println(camera.fullName() + " Caused an error");
+                        System.out.println(camera.fullName() + " Caused an error at time" + detectedObjects.getTimestamp());
                         DetectedObject errorObject = detectedObjects.getDetectedObjects().get(0);
                         Error error = new Error(camera.fullName(), errorObject.getDescription(), new AtomicInteger(detectedObjects.getTimestamp()));
                         sendBroadcast(new CrashedBroadcast(error));
@@ -83,26 +83,6 @@ public class CameraService extends MicroService {
 
 
 
-    }
-
-    private boolean checkForError(StampedDetectedObjects detectedObjects) {
-        for (DetectedObject obj : detectedObjects.getDetectedObjects()) {
-            if (obj.getId().equals("ERROR")) {
-                Error error = new Error(camera.fullName(), obj.getDescription(), new AtomicInteger(detectedObjects.getTimestamp()));
-                sendBroadcast(new CrashedBroadcast(error));
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private void printDetectedObjects(StampedDetectedObjects detectedObjects) {
-        System.out.println("Time: " + detectedObjects.getTimestamp());
-        System.out.println( getName() + " Detected Objects:");
-
-        for (DetectedObject obj : detectedObjects.getDetectedObjects()) {
-            System.out.println("  - " + obj);
-        }
     }
 
 

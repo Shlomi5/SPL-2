@@ -17,11 +17,7 @@ import main.java.bgu.spl.mics.application.services.*;
 
 public class ConfigParser {
 
-    private final String configFilePath;
 
-    public ConfigParser(String configFilePath) {
-        this.configFilePath = configFilePath;
-    }
 
     public static List<MicroService> ParseConfigFile(String folder, String configFilePath) {
         folder = folder + "/";
