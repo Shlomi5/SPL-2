@@ -40,6 +40,12 @@ public class GPSIMUDatabase {
         return poseList;
     }
 
+    // Singleton implementation
+
+    private GPSIMUDatabase() {
+        // Private constructor to prevent instantiation
+    }
+
     private static class SingletonHolder {
         private static final GPSIMUDatabase instance = new GPSIMUDatabase();
     }

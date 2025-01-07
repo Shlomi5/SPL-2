@@ -6,6 +6,7 @@ import main.java.bgu.spl.mics.application.messages.broadcasts.TerminatedBroadcas
 import main.java.bgu.spl.mics.application.messages.broadcasts.TickBroadcast;
 import main.java.bgu.spl.mics.application.objects.StatisticalFolder;
 
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -74,5 +75,9 @@ public class TimeService extends MicroService {
             sendBroadcast(new TerminatedBroadcast());
             terminate();
         }
+    }
+
+    public AtomicInteger getCounter() {
+        return counter;
     }
 }
