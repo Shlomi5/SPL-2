@@ -40,16 +40,17 @@ public class TimeService extends MicroService {
             System.out.println("TimeService Crashed");
             StatisticalFolder.setTimeStamp(c.getError().getTimeStamp());
             StatisticalFolder.setError(c.getError());
-            System.out.println("Statistics: " + StatisticalFolder.getInstance());
-            System.out.println("Statistics Json: " + StatisticalFolder.getInstance().createJson());
+//            System.out.println("Statistics: " + StatisticalFolder.getInstance());
+//            System.out.println("Statistics Json: " + StatisticalFolder.getInstance().createJson());
             StatisticalFolder.getInstance().writeJsonToFile();
             terminate();
         });
 
         subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast t) -> {
             System.out.println("TimeService Terminated");
-            System.out.println("Statistics: " + StatisticalFolder.getInstance());
-            System.out.println("Statistics Json: " + StatisticalFolder.getInstance().createJson());
+//            System.out.println("Statistics: " + StatisticalFolder.getInstance());
+//            System.out.println("Statistics Json: " + StatisticalFolder.getInstance().createJson());
+            StatisticalFolder.getInstance().writeJsonToFile();
             terminate();
         });
 

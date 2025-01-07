@@ -5,6 +5,7 @@ import main.java.bgu.spl.mics.application.messages.broadcasts.CrashedBroadcast;
 import main.java.bgu.spl.mics.application.messages.broadcasts.TerminatedBroadcast;
 import main.java.bgu.spl.mics.application.messages.broadcasts.TickBroadcast;
 import main.java.bgu.spl.mics.application.messages.events.DetectedObjectsEvent;
+import main.java.bgu.spl.mics.application.messages.events.FinishedData;
 import main.java.bgu.spl.mics.application.messages.events.TrackedObjectsEvent;
 import main.java.bgu.spl.mics.application.objects.Error;
 import main.java.bgu.spl.mics.application.objects.LiDarWorkerTracker;
@@ -30,8 +31,7 @@ public class LiDarService extends MicroService {
     private final LiDarWorkerTracker LiDarWorkerTracker;
     private ConcurrentLinkedQueue<DetectedObjectsEvent> detectedObjectsEvents;
 
-    private final int OVER_TIME;
-    private boolean isOver = false;
+    private int OVER_TIME;
 
     /**
      * Constructor for LiDarService.
@@ -41,8 +41,18 @@ public class LiDarService extends MicroService {
     public LiDarService(LiDarWorkerTracker LiDarWorkerTracker) {
         super("LidarService " + LiDarWorkerTracker.getId());
         this.LiDarWorkerTracker = LiDarWorkerTracker;
-        this.OVER_TIME = LiDarWorkerTracker.getLastTime() + LiDarWorkerTracker.getFrequency();
+        this.OVER_TIME = Integer.MAX_VALUE;
         detectedObjectsEvents = new ConcurrentLinkedQueue<>();
+    }
+
+
+    // calc is slang for calculator
+    private int calcFinishTime(int lastTime, int frequency) {
+        if (lastTime % frequency == 0) {
+            return lastTime;
+        } else {
+            return lastTime + (frequency - (lastTime % frequency));
+        }
     }
 
     /**
@@ -58,9 +68,9 @@ public class LiDarService extends MicroService {
 
         subscribeBroadcast(TickBroadcast.class, (tick) -> {
 
-            if (tick.getTime() > OVER_TIME && !isOver) {
+            if (tick.getTime() > OVER_TIME) {
                 System.out.println(getName() + " is over");
-                isOver = true;
+                sendEvent(new FinishedData(getName()));
                 return;
             }
 
@@ -69,6 +79,12 @@ public class LiDarService extends MicroService {
                 while (!detectedObjectsEvents.isEmpty()) {
 
                     DetectedObjectsEvent detectedObjectsEvent = detectedObjectsEvents.poll();
+
+                    assert detectedObjectsEvent != null;
+                    if (detectedObjectsEvent.getStampedDetectedObjects().getTimestamp() >= LiDarWorkerTracker.getLastTime()){
+                        OVER_TIME = calcFinishTime(detectedObjectsEvent.getStampedDetectedObjects().getTimestamp(), LiDarWorkerTracker.getFrequency());
+                    }
+
                     List<TrackedObject> trackedObjects = LiDarWorkerTracker.processDetectedObjectsEvent(detectedObjectsEvent);
                     if (LiDarWorkerTracker.getStatus().equals(STATUS.ERROR)) {
                         sendBroadcast(new CrashedBroadcast(new Error(LiDarWorkerTracker.fullName(), "LiDarWorkerTracker caused an error", new AtomicInteger(detectedObjectsEvent.getStampedDetectedObjects().getTimestamp()))));

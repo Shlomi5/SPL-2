@@ -5,6 +5,7 @@ import main.java.bgu.spl.mics.application.messages.broadcasts.CrashedBroadcast;
 import main.java.bgu.spl.mics.application.messages.broadcasts.TerminatedBroadcast;
 import main.java.bgu.spl.mics.application.messages.broadcasts.TickBroadcast;
 import main.java.bgu.spl.mics.application.messages.events.DetectedObjectsEvent;
+import main.java.bgu.spl.mics.application.messages.events.FinishedData;
 import main.java.bgu.spl.mics.application.objects.*;
 import main.java.bgu.spl.mics.application.objects.Error;
 
@@ -19,21 +20,30 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class CameraService extends MicroService {
     private final Camera camera;
     private final int OVER_TIME;
-    private boolean isOver = false;
 
     public CameraService(Camera camera) {
         super("CameraService " + camera.getId());
         this.camera = camera;
-        this.OVER_TIME = camera.getLastTime() + camera.getFrequency();
+        this.OVER_TIME = calcFinishTime(camera.getLastTime(), camera.getFrequency());
+    }
+
+    // calc is slang for calculator
+    private int calcFinishTime(int lastTime, int frequency) {
+        if (lastTime % frequency == 0) {
+            return lastTime;
+        } else {
+            return lastTime + (frequency - (lastTime % frequency));
+        }
     }
 
     protected void initialize() {
         System.out.println("Got BroadcastTick");
         this.subscribeBroadcast(TickBroadcast.class, (tick) -> {
 
-            if (tick.getTime() > OVER_TIME && !isOver) {
+            if (tick.getTime() > OVER_TIME) {
                 System.out.println(camera.fullName() + " is over");
-                isOver = true;
+                terminate();
+                sendEvent(new FinishedData(getName()));
                 return;
             }
 

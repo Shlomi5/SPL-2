@@ -23,11 +23,15 @@ public class ConfigParser {
         this.configFilePath = configFilePath;
     }
 
-    public static List<MicroService> ParseConfigFile(String folder,String configFilePath) {
+    public static List<MicroService> ParseConfigFile(String folder, String configFilePath) {
         folder = folder + "/";
         try (FileReader reader = new FileReader(folder + configFilePath)) {
             JsonObject config = JsonParser.parseReader(reader).getAsJsonObject();
             List<MicroService> services = new ArrayList<>();
+
+            System.out.println("Parsing TimeService...");
+            TimeService timeService = parseTimeService(config);
+            services.add(timeService);
 
             System.out.println("Parsing Cameras...");
             List<Camera> cameras = parseCameras(folder,config);
@@ -42,9 +46,6 @@ public class ConfigParser {
                 LiDarService liDarService = new LiDarService(lidarWorker);
                 services.add(liDarService);
             }
-            System.out.println("Parsing TimeService...");
-            TimeService timeService = parseTimeService(config);
-            services.add(timeService);
 
             System.out.println("Parsing GPSIMU...");
             GPSIMUDatabase gpsimuDatabase = GPSIMUDatabase.getInstance(folder + config.get("poseJsonFile").getAsString());

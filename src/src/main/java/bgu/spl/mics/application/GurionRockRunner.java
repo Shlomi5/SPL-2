@@ -33,7 +33,7 @@ public class GurionRockRunner {
 
 
         List<MicroService> services = ConfigParser.ParseConfigFile("example_input" ,"configuration_file.json");
-        for (Runnable service : services) {
+        for (MicroService service : services) {
             Thread thread = new Thread(service);
             thread.start();
         }
