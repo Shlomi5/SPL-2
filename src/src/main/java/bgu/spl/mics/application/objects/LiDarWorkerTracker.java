@@ -66,14 +66,7 @@ public class LiDarWorkerTracker {
         List<StampedCloudPoints> cloudPointsInRange = generateCloudPointsInRange(timeStamp);
 
 
-        /*for (DetectedObject detectedObject : detectedObjects) {
-            TrackedObject trackedObject = dataBase.getTrackedObject(detectedObject, timeStamp);
-            System.out.println("LiDarWorkerTracker " + id + " detected object: " + trackedObject);
-            if (trackedObject != null){
-                trackedObjects.add(trackedObject);
-                StatisticalFolder.getInstance().incrementNumTrackedObjects(1);
-            }
-        }*/
+
 
         for (StampedCloudPoints stampedCloudPoints : cloudPointsInRange) {
             if (stampedCloudPoints.isRead()) {
