@@ -44,10 +44,6 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
 		synchronized (eventMicroServicesHashMap) {
-			if (type.equals(PoseEvent.class)) {
-				System.out.println(m.getName() + " subscribed to PoseEvent \n");
-			}
-			Future<T> future = new Future<>();
 			CopyOnWriteArrayList<MicroService> microServices = eventMicroServicesHashMap.get(type);
 			if (microServices == null) {
 				microServices = new CopyOnWriteArrayList<>();

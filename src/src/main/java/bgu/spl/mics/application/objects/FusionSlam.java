@@ -97,7 +97,6 @@ public class FusionSlam {
     }
 
     public AtomicBoolean MicroServiceFinished(String microService) {
-        System.out.println("MicroService " + microService + " finished*********************************************************");
         AtomicBoolean allFinished = new AtomicBoolean(true);
         AtomicInteger counter = new AtomicInteger(0);
         synchronized (finishedServices) {

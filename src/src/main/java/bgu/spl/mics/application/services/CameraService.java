@@ -37,7 +37,6 @@ public class CameraService extends MicroService {
     }
 
     protected void initialize() {
-        System.out.println("Got BroadcastTick");
         this.subscribeBroadcast(TickBroadcast.class, (tick) -> {
 
             if (tick.getTime() > OVER_TIME) {

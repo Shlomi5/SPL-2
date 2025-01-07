@@ -3,7 +3,7 @@ package test.java;
 import main.java.bgu.spl.mics.application.objects.Camera;
 import main.java.bgu.spl.mics.application.objects.DetectedObject;
 import main.java.bgu.spl.mics.application.objects.StampedDetectedObjects;
-import main.java.bgu.spl.mics.application.services.CameraService;
+import org.junit.Test;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -17,14 +17,14 @@ public class CameraTests {
 
 
     public void setUp(int frequency, String cameraKey) {
-        camera = new Camera(null, new AtomicInteger(frequency), cameraKey);
+        camera = new Camera(new AtomicInteger(1), new AtomicInteger(frequency), cameraKey);
+        camera.loadDataBase("src/test/JsonResources/cameraResources/CameraTestDataBase.json");
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     public void testStampedDetectedObjectsNoError() {
         //Arrange
         setUp(5, "camera1");
-        camera.loadDataBase("src/test/JsonResources/CameraTest1.json");
 
         //Act
         StampedDetectedObjects output = camera.checkAndDetectObjects(5); // Should capture 3 objects at times 2,4
@@ -48,4 +48,16 @@ public class CameraTests {
 
 
     }
+
+    @Test
+    public void testStampedDetectedObjectsError() {
+        //Arrange
+        setUp(5, "camera2");
+
+        //Act
+        StampedDetectedObjects output = camera.checkAndDetectObjects(5); // Should capture 0 objects
+        //Assert
+        assert camera.crashed();
+    }
+
 }
