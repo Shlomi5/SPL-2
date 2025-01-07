@@ -158,6 +158,14 @@ public class MessageBusImpl implements MessageBus {
 		return messageQueue.poll(); // Return the next message if no specia+l message found
 	}
 
+	public ConcurrentHashMap<Class<? extends Event<?>>, CopyOnWriteArrayList<MicroService>> getEventMicroServicesHashMap() {
+		return eventMicroServicesHashMap;
+	}
+
+	public ConcurrentHashMap<Class<? extends Broadcast>, CopyOnWriteArrayList<MicroService>> getBroadcastMicroServicesHashMap() {
+		return broadcastMicroServicesHashMap;
+	}
+
 
 
 }
